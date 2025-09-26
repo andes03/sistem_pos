@@ -9,7 +9,7 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // tampilkan halaman login
+    // tampilkan halaman login untuk user
     public function showLogin()
     {
         return view('auth.login');
