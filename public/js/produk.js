@@ -14,6 +14,80 @@ function debounce(func, wait) {
 }
 
 /**
+ * Fungsi untuk menampilkan toast notification
+ */
+function showToast(message, type = 'success') {
+    // Hapus toast yang sudah ada jika ada
+    const existingToast = document.getElementById('toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    // Tentukan warna berdasarkan tipe
+    const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500',
+        warning: 'bg-yellow-500'
+    };
+
+    const icons = {
+        success: 'check-circle',
+        error: 'x-circle',
+        info: 'info',
+        warning: 'alert-triangle'
+    };
+
+    // Buat elemen toast
+    const toast = document.createElement('div');
+    toast.id = 'toast-notification';
+    toast.className = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${colors[type]} text-white px-6 py-4 rounded-lg shadow-2xl z-[9999] flex items-center gap-3 transform transition-all duration-300 ease-in-out`;
+    toast.style.minWidth = '350px';
+    toast.style.maxWidth = '500px';
+    toast.style.opacity = '0';
+    toast.style.scale = '0.9';
+
+    toast.innerHTML = `
+        <i data-feather="${icons[type]}" class="w-6 h-6 flex-shrink-0"></i>
+        <span class="flex-1 font-medium">${message}</span>
+        <button onclick="closeToast()" class="ml-2 hover:bg-white hover:bg-opacity-20 rounded p-1 transition-colors">
+            <i data-feather="x" class="w-5 h-5"></i>
+        </button>
+    `;
+
+    // Tambahkan ke body
+    document.body.appendChild(toast);
+
+    // Inisialisasi feather icons
+    feather.replace();
+
+    // Animasi masuk
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.scale = '1';
+    }, 10);
+
+    // Auto hide setelah 3 detik
+    setTimeout(() => {
+        closeToast();
+    }, 3000);
+}
+
+/**
+ * Fungsi untuk menutup toast
+ */
+function closeToast() {
+    const toast = document.getElementById('toast-notification');
+    if (toast) {
+        toast.style.opacity = '0';
+        toast.style.scale = '0.9';
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }
+}
+
+/**
  * Mengirim permintaan AJAX untuk memuat ulang konten tabel.
  */
 function loadTableContent(url) {
@@ -100,19 +174,58 @@ function openModal(modalId) {
 
 /**
  * Menutup modal dan mengatur tampilan.
+ * Melakukan reload halaman jika ada error untuk reset form state.
  */
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    // Cek apakah modal memiliki error
+    let hasErrors = false;
+    
+    if (modalId === 'addModal') {
+        hasErrors = modal.dataset.hasErrors === 'true';
+    } else if (modalId === 'editModal') {
+        hasErrors = modal.dataset.hasErrorsEdit !== '' && modal.dataset.hasErrorsEdit !== undefined;
+    }
+    
+    // Jika ada error, reload halaman untuk reset state
+    if (hasErrors) {
+        // Hapus parameter error dari URL sebelum reload
+        const url = new URL(window.location);
+        url.searchParams.delete('errors');
+        window.history.replaceState({}, '', url);
+        
+        // Reload halaman
+        window.location.reload();
+        return;
+    }
+    
+    // Proses normal close modal jika tidak ada error
     modal.classList.remove('flex');
     modal.classList.add('hidden');
     modal.setAttribute('aria-hidden', 'true');
     // Aktifkan kembali scroll pada body
     document.body.style.overflow = 'auto';
-    // Hapus pesan error saat modal ditutup
+    
+    // Hapus pesan error saat modal ditutup (untuk kasus normal)
     const errorSpans = modal.querySelectorAll('span[role="alert"]');
     errorSpans.forEach(span => span.remove());
     const errorInputs = modal.querySelectorAll('.border-red-500');
     errorInputs.forEach(input => input.classList.remove('border-red-500'));
+    
+    // Reset form jika ada
+    const form = modal.querySelector('form');
+    if (form) {
+        form.reset();
+        
+        // Reset preview image jika ada
+        const imagePreview = form.querySelector('#image-preview, #edit-image-preview');
+        if (imagePreview) {
+            imagePreview.src = 'https://via.placeholder.com/100';
+            imagePreview.style.opacity = '0';
+        }
+    }
 }
 
 /**
@@ -258,7 +371,6 @@ function openDetailModal(url) {
     });
 }
 
-
 /**
  * Menginisialisasi fungsionalitas pencarian, filter, dan paginasi.
  */
@@ -306,6 +418,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inisialisasi loading untuk gambar yang ada saat halaman dimuat
     initializeImageLoading();
     
+    // Cek dan tampilkan toast notification jika ada pesan sukses
+    const successMessage = document.getElementById('success-message');
+    if (successMessage) {
+        const message = successMessage.textContent.trim();
+        if (message) {
+            showToast(message, 'success');
+            // Hapus elemen pesan dari DOM
+            successMessage.remove();
+        }
+    }
+    
     // Panggil modal jika ada error validasi saat submit form
     const addModal = document.getElementById('addModal');
     const editModal = document.getElementById('editModal');
@@ -332,4 +455,27 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         openEditModal(produkTemp, imagePath);
     }
+});
+
+// Event listener untuk menutup modal dengan ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('[id$="Modal"]');
+        modals.forEach(modal => {
+            if (modal.classList.contains('flex')) {
+                closeModal(modal.id);
+            }
+        });
+        closeToast();
+    }
+});
+
+// Event listener untuk menutup modal dengan klik di luar area modal
+document.addEventListener('click', function(event) {
+    const modals = document.querySelectorAll('[id$="Modal"]');
+    modals.forEach(modal => {
+        if (modal.classList.contains('flex') && event.target === modal) {
+            closeModal(modal.id);
+        }
+    });
 });

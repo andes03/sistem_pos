@@ -8,6 +8,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
+use Illuminate\Validation\Rule; // Import Rule
 
 class UserController extends Controller
 {
@@ -57,11 +58,17 @@ class UserController extends Controller
                 'nama' => 'required|string|max:255',
                 'email' => 'required|email|max:255|unique:user,email',
                 'password' => 'required|string|min:8|confirmed',
-                'nomor_hp' => 'required|string|min:10|numeric|unique:user,nomor_hp',
-                'alamat' => 'nullable|string',
-                'jabatan' => 'nullable|string|max:255',
+                'nomor_hp' => [
+                    'required',
+                    'string',
+                    'regex:/^[0-9]{10,15}$/',
+                    'unique:user,nomor_hp'
+                ],
+                'alamat' => 'required|string', // Alamat diubah menjadi required
+                'jabatan' => 'required|string|max:255', // Jabatan diubah menjadi required
                 'role' => 'required|in:user,admin',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                // PERUBAHAN UTAMA: image diubah dari 'nullable' menjadi 'required'
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ], [
                 'username.required' => 'Username wajib diisi.',
                 'username.unique' => 'Username ini sudah digunakan. Silakan gunakan username lain.',
@@ -73,11 +80,13 @@ class UserController extends Controller
                 'password.min' => 'Password minimal harus 8 karakter.',
                 'password.confirmed' => 'Konfirmasi password tidak cocok.',
                 'nomor_hp.required' => 'Nomor HP wajib diisi.',
-                'nomor_hp.min' => 'Nomor HP minimal 10 digit.',
-                'nomor_hp.numeric' => 'Nomor HP harus berupa angka.',
+                'nomor_hp.regex' => 'Nomor HP harus berupa angka dan berjumlah 10-15 digit.',
                 'nomor_hp.unique' => 'Nomor HP ini sudah terdaftar. Silakan gunakan nomor lain.',
+                'alamat.required' => 'Alamat wajib diisi.',
+                'jabatan.required' => 'Jabatan wajib diisi.',
                 'role.required' => 'Role wajib diisi.',
                 'role.in' => 'Role harus berupa user atau admin.',
+                'image.required' => 'Foto Profil wajib diunggah.', // Pesan validasi untuk required image
                 'image.image' => 'File harus berupa gambar.',
                 'image.mimes' => 'Format gambar yang didukung adalah jpeg, png, jpg, gif, svg.',
                 'image.max' => 'Ukuran gambar tidak boleh lebih dari 2MB.',
@@ -105,6 +114,7 @@ class UserController extends Controller
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput()->with('_form_type', 'add');
         } catch (QueryException $e) {
+            // Log the error: \Log::error($e);
             return redirect()->back()->with('error', 'Gagal menambahkan user. Coba lagi nanti.')->withInput();
         }
     }
@@ -119,16 +129,25 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         try {
+            // Tentukan apakah gambar saat ini kosong. Jika kosong, gambar baru Wajib diisi.
+            $imageRule = $user->image ? 'nullable' : 'required';
+
             $validated = $request->validate([
                 'username' => 'required|string|max:255|unique:user,username,' . $user->id,
                 'nama' => 'required|string|max:255',
                 'email' => 'required|email|max:255|unique:user,email,' . $user->id,
                 'password' => 'nullable|string|min:8|confirmed',
-                'nomor_hp' => 'required|string|min:10|numeric|unique:user,nomor_hp,' . $user->id,
-                'alamat' => 'nullable|string',
-                'jabatan' => 'nullable|string|max:255',
+                'nomor_hp' => [
+                    'required',
+                    'string',
+                    'regex:/^[0-9]{10,15}$/',
+                    'unique:user,nomor_hp,' . $user->id
+                ],
+                'alamat' => 'required|string', // Alamat diubah menjadi required
+                'jabatan' => 'required|string|max:255', // Jabatan diubah menjadi required
                 'role' => 'required|in:user,admin',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                // PERUBAHAN PENTING: Menggunakan Rule bedasarkan keberadaan gambar lama
+                'image' => [$imageRule, 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             ], [
                 'username.required' => 'Username wajib diisi.',
                 'username.unique' => 'Username ini sudah digunakan. Silakan gunakan username lain.',
@@ -139,11 +158,13 @@ class UserController extends Controller
                 'password.min' => 'Password minimal harus 8 karakter.',
                 'password.confirmed' => 'Konfirmasi password tidak cocok.',
                 'nomor_hp.required' => 'Nomor HP wajib diisi.',
-                'nomor_hp.min' => 'Nomor HP minimal 10 digit.',
-                'nomor_hp.numeric' => 'Nomor HP harus berupa angka.',
+                'nomor_hp.regex' => 'Nomor HP harus berupa angka dan berjumlah 10-15 digit.',
                 'nomor_hp.unique' => 'Nomor HP ini sudah terdaftar. Silakan gunakan nomor lain.',
+                'alamat.required' => 'Alamat wajib diisi.',
+                'jabatan.required' => 'Jabatan wajib diisi.',
                 'role.required' => 'Role wajib diisi.',
                 'role.in' => 'Role harus berupa user atau admin.',
+                'image.required' => 'Foto Profil wajib diunggah karena user ini belum memiliki foto profil sebelumnya.', // Pesan khusus
                 'image.image' => 'File harus berupa gambar.',
                 'image.mimes' => 'Format gambar yang didukung adalah jpeg, png, jpg, gif, svg.',
                 'image.max' => 'Ukuran gambar tidak boleh lebih dari 2MB.',
@@ -151,10 +172,17 @@ class UserController extends Controller
 
             $imagePath = $user->image;
             if ($request->hasFile('image')) {
+                // Hapus gambar lama jika ada
                 if ($imagePath && Storage::disk('public')->exists($imagePath)) {
                     Storage::disk('public')->delete($imagePath);
                 }
+                // Simpan gambar baru
                 $imagePath = $request->file('image')->store('user', 'public');
+            } else {
+                // Jika tidak ada file baru diupload DAN tidak ada file lama, atur imagePath menjadi null
+                if (!$user->image) {
+                     $imagePath = null;
+                }
             }
 
             $updateData = [
@@ -183,6 +211,7 @@ class UserController extends Controller
                 'user_id_edit' => $user->id,
             ]);
         } catch (QueryException $e) {
+            // Log the error: \Log::error($e);
             return redirect()->back()->with('error', 'Gagal memperbarui user. Coba lagi nanti.')->withInput();
         }
     }
@@ -204,6 +233,7 @@ class UserController extends Controller
             return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
 
         } catch (QueryException $e) {
+            // Log the error: \Log::error($e);
             return redirect()->back()->with('error', 'Gagal menghapus user. User mungkin terkait dengan data lain.');
         }
     }

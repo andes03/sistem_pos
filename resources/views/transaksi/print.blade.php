@@ -210,7 +210,7 @@
     <div class="receipt-container">
         <!-- Store Header -->
         <div class="store-header">
-            <div class="store-name">Balcos Compound</div>
+            <div class="store-name">Sebelas coffee</div>
             <div class="store-info">Jl. Nologaten, Nologaten</div>
             <div class="store-info">Kabupaten Sleman, Daerah Istimewa Yogyakarta</div>
             <div class="store-info">55281</div>

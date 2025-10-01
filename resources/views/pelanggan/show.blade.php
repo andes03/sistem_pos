@@ -1,101 +1,178 @@
-@extends('layouts.app') {{-- Pastikan ini sesuai dengan layout utama Anda --}}
+@extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto py-8">
-    <div class="flex items-center gap-4 mb-6">
-        <a href="{{ route('pelanggan.index') }}" class="text-gray-600 hover:text-gray-800 transition-colors">
-            <i data-feather="arrow-left" class="w-6 h-6"></i>
-        </a>
-        <h1 class="text-3xl font-bold text-gray-800">Detail Pelanggan</h1>
-    </div>
-
-    {{-- Kartu Detail Pelanggan --}}
-    <div class="bg-white shadow-lg rounded-lg p-8 mb-8">
-        <div class="flex items-center justify-between border-b pb-4 mb-4">
-            <h2 class="text-2xl font-semibold text-gray-700">{{ $pelanggan->nama }}</h2>
-            <div class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                {{ $pelanggan->membership->nama }}
-            </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {{-- Header dengan tombol kembali --}}
+        <div class="flex items-center justify-between mb-8">
             <div>
-                <p class="text-gray-600"><strong class="font-medium text-gray-800">Email:</strong> {{ $pelanggan->email }}</p>
-                <p class="text-gray-600 mt-2"><strong class="font-medium text-gray-800">Nomor HP:</strong> {{ $pelanggan->nomor_hp }}</p>
-                <p class="text-gray-600 mt-2"><strong class="font-medium text-gray-800">Alamat:</strong> {{ $pelanggan->alamat }}</p>
+                <h1 class="text-3xl font-bold text-gray-900">Detail Pelanggan </h1>
+               
             </div>
-            <div>
-                <p class="text-gray-600"><strong class="font-medium text-gray-800">Total Transaksi:</strong> <span class="text-blue-600 font-bold">{{ $jumlahTransaksi }}</span></p>
-                {{-- Anda bisa menambahkan detail lain seperti total belanja, diskon yang didapat, dll. --}}
+            <a href="{{ route('pelanggan.index') }}" 
+               class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                Kembali
+            </a>
+        </div>
+
+        {{-- Card Informasi Pelanggan dan Statistik --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            {{-- Card Informasi Dasar Pelanggan (2/3 lebar) --}}
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-white">Kartu Pelanggan</h2>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white 
+                            {{ $pelanggan->membership ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 hover:bg-gray-500' }} transition-colors">
+                            <i data-feather="award" class="w-3 h-3 mr-1"></i>
+                            {{ $pelanggan->membership->nama ?? 'Non-Member' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{-- Nama & Email --}}
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Nama Lengkap</p>
+                                <p class="mt-1 text-lg font-bold text-gray-900">{{ $pelanggan->nama }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</p>
+                                <p class="mt-1 text-sm text-gray-700">{{ $pelanggan->email ?? '-' }}</p>
+                            </div>
+                        </div>
+                        
+                        {{-- No HP & Alamat --}}
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Nomor HP</p>
+                                <p class="mt-1 text-sm text-gray-700">{{ $pelanggan->nomor_hp ?? '-' }}</p>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Alamat</p>
+                                <p class="mt-1 text-sm text-gray-700">{{ $pelanggan->alamat ?? '-' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {{-- Card Statistik (1/3 lebar) --}}
+            <div class="lg:col-span-1 space-y-4">
+                {{-- Total Transaksi --}}
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total Transaksi</p>
+                            <p class="text-3xl font-extrabold text-blue-600 mt-1">{{ $jumlahTransaksi }}</p>
+                            <p class="text-xs text-gray-500 mt-1">kali transaksi</p>
+                        </div>
+                        <div class="p-3 bg-blue-100 rounded-full text-blue-600">
+                            <i data-feather="shopping-cart" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Total Belanja --}}
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-6 hover:shadow-lg transition-shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total Akumulasi Belanja</p>
+                            <p class="text-2xl font-extrabold text-green-600 mt-1">Rp {{ number_format($totalAkumulasiTransaksi ?? 0, 0, ',', '.') }}</p>
+                            <p class="text-xs text-gray-500 mt-1">sepanjang waktu</p>
+                        </div>
+                        <div class="p-3 bg-green-100 rounded-full text-green-600">
+                            <i data-feather="dollar-sign" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {{-- Card Riwayat Transaksi --}}
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900">Riwayat Transaksi Terakhir</h2>
+                <p class="text-sm text-gray-500">{{ $jumlahTransaksi }} total transaksi tercatat</p>
+            </div>
+            
+            @if($riwayatTransaksi->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Transaksi</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode Pembayaran</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detail Produk</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($riwayatTransaksi as $transaksi)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                        {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d/m/Y H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                                        #{{ str_pad($transaksi->id, 6, '0', STR_PAD_LEFT) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-700">
+                                        Rp {{ number_format($transaksi->total, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        @php
+                                            $method = strtolower($transaksi->metode_pembayaran);
+                                            $class = '';
+                                            $icon = '';
+                                            if ($method === 'tunai') {
+                                                $class = 'bg-green-100 text-green-800';
+                                                $icon = 'dollar-sign';
+                                            } elseif ($method === 'transfer') {
+                                                $class = 'bg-blue-100 text-blue-800';
+                                                $icon = 'credit-card';
+                                            } else {
+                                                $class = 'bg-purple-100 text-purple-800';
+                                                $icon = 'smartphone';
+                                            }
+                                        @endphp
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full {{ $class }} items-center gap-1">
+                                            <i data-feather="{{ $icon }}" class="w-3 h-3"></i>
+                                            {{ ucfirst($transaksi->metode_pembayaran) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-700">
+                                        <ul class="list-disc list-inside space-y-0.5">
+                                            @foreach($transaksi->detailTransaksi as $detail)
+                                                <li class="text-xs text-gray-600">
+                                                    {{ $detail->produk->nama ?? 'Produk tidak tersedia' }} <span class="font-medium">({{ $detail->jumlah }}x)</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-12 text-gray-500">
+                    <i data-feather="inbox" class="w-12 h-12 mx-auto text-gray-300 mb-4"></i>
+                    <p class="text-lg font-medium">Belum ada riwayat transaksi</p>
+                    <p class="text-sm">Pelanggan ini belum melakukan pembelian apapun.</p>
+                </div>
+            @endif
         </div>
     </div>
-    
-    {{-- Riwayat Transaksi --}}
-    <h2 class="text-2xl font-bold mb-4 text-gray-800">Riwayat Transaksi</h2>
-
-    @if($riwayatTransaksi->isEmpty())
-        <div class="bg-white shadow-md rounded-lg p-6 text-center text-gray-500">
-            <i data-feather="info" class="w-10 h-10 mx-auto mb-3 text-gray-400"></i>
-            <p>Pelanggan ini belum memiliki riwayat transaksi.</p>
-        </div>
-    @else
-        <div class="overflow-x-auto bg-white shadow-md rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            ID Transaksi
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Tanggal
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Total
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Pembayaran
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Membership Saat Transaksi
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Detail Produk
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach($riwayatTransaksi as $transaksi)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ $transaksi->id }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->isoFormat('D MMMM YYYY') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                Rp{{ number_format($transaksi->total, 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $transaksi->metode_pembayaran }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $transaksi->pelanggan->membership->nama ?? 'N/A' }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-500 max-w-sm overflow-hidden text-ellipsis">
-                                <ul class="list-disc list-inside">
-                                    @foreach($transaksi->detailTransaksi as $detail)
-                                        <li>{{ $detail->produk->nama }} (x{{ $detail->jumlah }})</li>
-                                    @endforeach
-                                </ul>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
 </div>
 
+{{-- Memuat Feather Icons --}}
 <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.29.0/dist/feather.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {

@@ -1,19 +1,15 @@
-@extends('layouts.app') {{-- Ganti dengan layout utama Anda --}}
+@extends('layouts.app')
 
 @section('content')
 <div class="container mx-auto py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Manajemen Pelanggan</h1>
 
     @if(session('success'))
-        <div class="mb-4 px-4 py-3 bg-green-200 text-green-800 rounded shadow">
-            {{ session('success') }}
-        </div>
+        <div id="success-message" class="hidden">{{ session('success') }}</div>
     @endif
 
     <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
-        {{-- Container untuk Pencarian dan Filter dengan lebar yang lebih pendek --}}
         <div class="flex-1 w-full flex flex-col sm:flex-row gap-4">
-            {{-- Form Pencarian dengan ikon, lebar lebih pendek --}}
             <div class="relative w-full sm:w-1/2">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                     <i data-feather="search" class="w-5 h-5"></i>
@@ -27,7 +23,6 @@
                        autocomplete="off"/>
             </div>
 
-            {{-- Filter Membership dengan ikon, lebar lebih pendek --}}
             <div class="relative w-full sm:w-1/2">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                     <i data-feather="users" class="w-5 h-5"></i>
@@ -55,10 +50,6 @@
     </div>
 </div>
 
-{{-- ================================================= --}}
-{{-- ============== MODALS SECTION =================== --}}
-{{-- ================================================= --}}
-
 {{-- Modal Tambah Pelanggan --}}
 <div id="addModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50"
       data-has-errors="{{ $errors->any() && session('_form_type') === 'add' ? 'true' : 'false' }}">
@@ -73,6 +64,7 @@
         <form method="POST" action="{{ route('pelanggan.store') }}" id="addCustomerForm">
             @csrf
             <input type="hidden" name="_form_type" value="add">
+            
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama *</label>
                 <input type="text" name="nama" required value="{{ old('nama') }}"
@@ -97,28 +89,19 @@
                 @error('nomor_hp') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
             </div>
 
-             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Membership *</label>
-                <select name="membership_id" required class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('membership_id') border-red-500 @enderror">
-                    @php
-                        $newMemberId = $memberships->firstWhere('nama', 'New Member')->id ?? null;
-                    @endphp
-                    @foreach($memberships as $membership)
-                        <option value="{{ $membership->id }}" 
-                            {{ (old('membership_id') == $membership->id) ? 'selected' : (($newMemberId && $membership->id == $newMemberId) ? 'selected' : '') }}>
-                            {{ $membership->nama }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('membership_id') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
-            </div>
-
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Alamat *</label>
                 <textarea name="alamat" required rows="3"
                           class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('alamat') border-red-500 @enderror"
                           placeholder="Masukkan alamat pelanggan">{{ old('alamat') }}</textarea>
                 @error('alamat') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+                <p class="text-sm text-blue-800 flex items-start gap-2">
+                    <i data-feather="info" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                    <span>Membership akan otomatis diberikan berdasarkan total transaksi pelanggan.</span>
+                </p>
             </div>
 
             <div class="flex justify-end gap-3">
@@ -137,7 +120,9 @@
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 mx-4">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold text-gray-800">Edit Data Pelanggan</h2>
-            <button onclick="closeModal('editModal')" class="text-gray-400 hover:text-gray-600"><i data-feather="x" class="w-5 h-5"></i></button>
+            <button onclick="closeModal('editModal')" class="text-gray-400 hover:text-gray-600">
+                <i data-feather="x" class="w-5 h-5"></i>
+            </button>
         </div>
 
         <form id="editForm" method="POST">
@@ -159,9 +144,7 @@
                 <input type="email" name="email" id="editEmail" required
                        value="{{ old('_form_type') === 'edit' ? old('email') : '' }}"
                        class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('email') border-red-500 @enderror">
-                @error('email')
-                    <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
-                @enderror
+                @error('email') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <div class="mb-4">
@@ -169,29 +152,21 @@
                 <input type="text" name="nomor_hp" id="editNomorHp" required
                        value="{{ old('_form_type') === 'edit' ? old('nomor_hp') : '' }}"
                        class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('nomor_hp') border-red-500 @enderror">
-                    @error('nomor_hp') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Membership *</label>
-                <select name="membership_id" id="editMembershipId" required
-                                 class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('membership_id') border-red-500 @enderror">
-                    <option value="" disabled>Pilih Tipe Membership</option>
-                    @foreach($memberships as $membership)
-                        <option value="{{ $membership->id }}"
-                            {{ (old('_form_type') === 'edit' && old('membership_id') == $membership->id) ? 'selected' : '' }}>
-                            {{ $membership->nama }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('membership_id') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                @error('nomor_hp') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Alamat *</label>
                 <textarea name="alamat" id="editAlamat" required rows="3"
-                                 class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('alamat') border-red-500 @enderror">{{ old('_form_type') === 'edit' ? old('alamat') : '' }}</textarea>
-                    @error('alamat') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                          class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('alamat') border-red-500 @enderror">{{ old('_form_type') === 'edit' ? old('alamat') : '' }}</textarea>
+                @error('alamat') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+                <p class="text-sm text-blue-800 flex items-start gap-2">
+                    <i data-feather="info" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                    <span>Membership dikelola otomatis oleh sistem berdasarkan total transaksi dan tidak dapat diubah secara manual.</span>
+                </p>
             </div>
 
             <div class="flex justify-end gap-3">
@@ -203,7 +178,6 @@
         </form>
     </div>
 </div>
-
 
 {{-- Modal Hapus Pelanggan --}}
 <div id="deleteModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50">
@@ -237,7 +211,6 @@
     </div>
 </div>
 
-{{-- Memuat Feather Icons & Skrip JS --}}
 <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.29.0/dist/feather.min.js"></script>
 <script src="{{ asset('js/pelanggan.js') }}"></script>
 @endsection

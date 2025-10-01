@@ -178,8 +178,106 @@ class DashboardController extends Controller
             'produkTerbaru',
             'kategoriList',
             'transaksiTerbaru',
-            'availableYears', // Kirim daftar tahun
-            'selectedYear' // Kirim tahun yang sedang dipilih
+            'availableYears',
+            'selectedYear'
         ));
+    }
+
+    // Method AJAX untuk filter Pendapatan per Tahun
+    public function getPendapatan(Request $request)
+    {
+        Carbon::setLocale('id');
+        
+        $tahun = $request->input('tahun', Carbon::now()->year);
+
+        $bulanLabels = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $bulanLabels[] = Carbon::create(null, $i)->isoFormat('MMMM');
+        }
+
+        $pendapatanPerBulan = Transaksi::select(
+            DB::raw('MONTH(tanggal_transaksi) as bulan'),
+            DB::raw('SUM(total) as total')
+        )
+        ->whereYear('tanggal_transaksi', $tahun)
+        ->groupBy('bulan')
+        ->orderBy('bulan')
+        ->get();
+
+        $pendapatanValues = array_fill(0, 12, 0);
+        foreach ($pendapatanPerBulan as $data) {
+            $pendapatanValues[$data->bulan - 1] = $data->total;
+        }
+
+        return response()->json([
+            'labels' => $bulanLabels,
+            'values' => $pendapatanValues
+        ]);
+    }
+
+    // Method AJAX untuk filter Produk Terlaris per Kategori
+    public function getProdukTerlaris(Request $request)
+    {
+        $produkTerlarisQuery = DB::table('detail_transaksi')
+            ->join('produk', 'detail_transaksi.produk_id', '=', 'produk.id')
+            ->select('produk.nama', DB::raw('SUM(detail_transaksi.jumlah) as total_terjual'))
+            ->groupBy('produk.nama')
+            ->orderByDesc('total_terjual')
+            ->limit(5);
+
+        if ($request->has('kategori_id') && $request->input('kategori_id') != '') {
+            $produkTerlarisQuery->where('produk.kategori_id', $request->input('kategori_id'));
+        }
+
+        $produkTerlaris = $produkTerlarisQuery->get();
+        
+        return response()->json([
+            'labels' => $produkTerlaris->pluck('nama'),
+            'values' => $produkTerlaris->pluck('total_terjual')
+        ]);
+    }
+
+    // Method AJAX untuk filter Metode Pembayaran per Bulan
+    public function getMetodePembayaran(Request $request)
+    {
+        $bulan = $request->input('bulan', Carbon::now()->month);
+        $tahun = $request->input('tahun', Carbon::now()->year);
+
+        $metodePembayaranData = Transaksi::select(
+            'metode_pembayaran',
+            DB::raw('COUNT(*) as jumlah_transaksi'),
+            DB::raw('SUM(total) as total_uang')
+        )
+        ->whereYear('tanggal_transaksi', $tahun)
+        ->whereMonth('tanggal_transaksi', $bulan)
+        ->groupBy('metode_pembayaran')
+        ->get();
+
+        $metodePembayaranLabels = ['Tunai', 'Transfer', 'E-Wallet'];
+        $metodePembayaranJumlahTransaksi = [0, 0, 0];
+        $metodePembayaranTotalUang = [0, 0, 0];
+
+        foreach ($metodePembayaranData as $data) {
+            $index = 0;
+            switch ($data->metode_pembayaran) {
+                case 'tunai':
+                    $index = 0;
+                    break;
+                case 'transfer':
+                    $index = 1;
+                    break;
+                case 'ewallet':
+                    $index = 2;
+                    break;
+            }
+            $metodePembayaranJumlahTransaksi[$index] = $data->jumlah_transaksi;
+            $metodePembayaranTotalUang[$index] = $data->total_uang;
+        }
+
+        return response()->json([
+            'labels' => $metodePembayaranLabels,
+            'jumlahTransaksi' => $metodePembayaranJumlahTransaksi,
+            'totalUang' => $metodePembayaranTotalUang
+        ]);
     }
 }

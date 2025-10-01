@@ -14,6 +14,72 @@ function debounce(func, wait) {
 }
 
 /**
+ * Fungsi untuk menampilkan toast notification
+ */
+function showToast(message, type = 'success') {
+    const existingToast = document.getElementById('toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500',
+        warning: 'bg-yellow-500'
+    };
+
+    const icons = {
+        success: 'check-circle',
+        error: 'x-circle',
+        info: 'info',
+        warning: 'alert-triangle'
+    };
+
+    const toast = document.createElement('div');
+    toast.id = 'toast-notification';
+    toast.className = `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${colors[type]} text-white px-6 py-4 rounded-lg shadow-2xl z-[9999] flex items-center gap-3 transform transition-all duration-300 ease-in-out`;
+    toast.style.minWidth = '350px';
+    toast.style.maxWidth = '500px';
+    toast.style.opacity = '0';
+    toast.style.scale = '0.9';
+
+    toast.innerHTML = `
+        <i data-feather="${icons[type]}" class="w-6 h-6 flex-shrink-0"></i>
+        <span class="flex-1 font-medium">${message}</span>
+        <button onclick="closeToast()" class="ml-2 hover:bg-white hover:bg-opacity-20 rounded p-1 transition-colors">
+            <i data-feather="x" class="w-5 h-5"></i>
+        </button>
+    `;
+
+    document.body.appendChild(toast);
+    feather.replace();
+
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.scale = '1';
+    }, 10);
+
+    setTimeout(() => {
+        closeToast();
+    }, 3000);
+}
+
+/**
+ * Fungsi untuk menutup toast
+ */
+function closeToast() {
+    const toast = document.getElementById('toast-notification');
+    if (toast) {
+        toast.style.opacity = '0';
+        toast.style.scale = '0.9';
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }
+}
+
+/**
  * Mengirim permintaan AJAX untuk memuat ulang konten tabel.
  */
 function loadTableContent(url) {
@@ -52,7 +118,6 @@ function openModal(modalId) {
     modal.classList.add('flex');
     modal.setAttribute('aria-hidden', 'false');
     modal.focus();
-    // Nonaktifkan scroll pada body
     document.body.style.overflow = 'hidden';
 }
 
@@ -61,13 +126,29 @@ function openModal(modalId) {
  */
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    let hasErrors = false;
+    
+    if (modalId === 'addModal') {
+        hasErrors = modal.dataset.hasErrors === 'true';
+    } else if (modalId === 'editModal') {
+        hasErrors = modal.dataset.hasErrorsEdit !== '' && modal.dataset.hasErrorsEdit !== undefined;
+    }
+    
+    if (hasErrors) {
+        const url = new URL(window.location);
+        url.searchParams.delete('errors');
+        window.history.replaceState({}, '', url);
+        window.location.reload();
+        return;
+    }
+    
     modal.classList.remove('flex');
     modal.classList.add('hidden');
     modal.setAttribute('aria-hidden', 'true');
-    // Aktifkan kembali scroll pada body
     document.body.style.overflow = 'auto';
     
-    // Hapus pesan error saat modal ditutup
     const errorSpans = modal.querySelectorAll('span[role="alert"], .error-message');
     errorSpans.forEach(span => {
         span.classList.add('hidden');
@@ -77,7 +158,6 @@ function closeModal(modalId) {
     const errorInputs = modal.querySelectorAll('.border-red-500');
     errorInputs.forEach(input => input.classList.remove('border-red-500'));
     
-    // Reset form
     const form = modal.querySelector('form');
     if (form) {
         resetFormToDefault(form);
@@ -85,19 +165,23 @@ function closeModal(modalId) {
 }
 
 /**
- * Reset form ke kondisi default tanpa konfirmasi (untuk close modal)
+ * Reset form ke kondisi default
  */
 function resetFormToDefault(form) {
     form.reset();
     
-    // Reset preview image jika ada
-    const imagePreview = form.querySelector('#image-preview, #edit-image-preview');
-    if (imagePreview) {
-        imagePreview.src = 'https://via.placeholder.com/100';
-        imagePreview.classList.add('hidden');
+    const imagePreviewAdd = form.querySelector('#image-preview');
+    const imagePreviewEdit = form.querySelector('#edit-image-preview');
+
+    if (imagePreviewAdd) {
+        imagePreviewAdd.src = 'https://via.placeholder.com/100';
+        imagePreviewAdd.classList.add('hidden');
+    }
+    if (imagePreviewEdit) {
+        imagePreviewEdit.src = 'https://via.placeholder.com/100';
+        imagePreviewEdit.classList.remove('hidden');
     }
     
-    // Reset password field types ke password (hidden) hanya jika tidak ada error
     const modal = form.closest('[id$="Modal"]');
     const hasErrors = modal && (
         modal.dataset.hasErrors === 'true' || 
@@ -112,7 +196,6 @@ function resetFormToDefault(form) {
             }
         });
         
-        // Reset toggle icons
         const toggleIcons = form.querySelectorAll('[id*="toggle"][id*="Icon"]');
         toggleIcons.forEach(icon => {
             icon.setAttribute('data-feather', 'eye');
@@ -146,89 +229,31 @@ function togglePassword(inputId, iconId) {
         toggleIcon.setAttribute('data-feather', 'eye');
     }
     
-    // Re-render the icon
     feather.replace();
 }
 
 /**
- * Reset form dengan konfirmasi
- */
-function resetForm() {
-    const form = document.getElementById('addUserForm');
-    
-    // Konfirmasi sebelum reset
-    if (confirm('Apakah Anda yakin ingin mengosongkan semua field form?')) {
-        // Reset semua input
-        form.reset();
-        
-        // Reset preview image
-        const imagePreview = document.getElementById('image-preview');
-        if (imagePreview) {
-            imagePreview.src = 'https://via.placeholder.com/100';
-            imagePreview.classList.add('hidden');
-        }
-        
-        // Reset password field types
-        const passwordInput = document.getElementById('password');
-        const passwordConfirmationInput = document.getElementById('password_confirmation');
-        const editPasswordInput = document.getElementById('editPassword');
-        const editPasswordConfirmationInput = document.getElementById('editPasswordConfirmation');
-        
-        const resetPasswordField = (input, iconId) => {
-            if (input && input.type === 'text') {
-                input.type = 'password';
-                input.removeAttribute('data-original-type');
-                const icon = document.getElementById(iconId);
-                if (icon) {
-                    icon.setAttribute('data-feather', 'eye');
-                }
-            }
-        };
-        
-        resetPasswordField(passwordInput, 'togglePasswordIcon');
-        resetPasswordField(passwordConfirmationInput, 'togglePasswordConfirmationIcon');
-        resetPasswordField(editPasswordInput, 'toggleEditPasswordIcon');
-        resetPasswordField(editPasswordConfirmationInput, 'toggleEditPasswordConfirmationIcon');
-        
-        // Hapus semua pesan error
-        const errorMessages = form.querySelectorAll('span[role="alert"], .error-message');
-        errorMessages.forEach(error => {
-            error.classList.add('hidden');
-            error.textContent = '';
-        });
-        
-        // Hapus border merah dari input
-        const errorInputs = form.querySelectorAll('.border-red-500');
-        errorInputs.forEach(input => {
-            input.classList.remove('border-red-500');
-        });
-        
-        // Re-render icons
-        feather.replace();
-        
-        // Focus ke input pertama
-        const firstInput = form.querySelector('input[name="username"]');
-        if (firstInput) {
-            setTimeout(() => firstInput.focus(), 100);
-        }
-    }
-}
-
-/**
- * Preview gambar yang dipilih
+ * Preview image function
  */
 function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
+    const file = input.files[0];
     
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
+    if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('Ukuran file melebihi batas maksimum 2MB.', 'error');
+            input.value = '';
+            preview.src = 'https://via.placeholder.com/100';
+            preview.classList.add('hidden');
+            return;
+        }
         
+        const reader = new FileReader();
         reader.onload = function(e) {
             preview.src = e.target.result;
             preview.classList.remove('hidden');
-        };
-        
-        reader.readAsDataURL(input.files[0]);
+        }
+        reader.readAsDataURL(file);
     } else {
         preview.src = 'https://via.placeholder.com/100';
         preview.classList.add('hidden');
@@ -237,11 +262,12 @@ function previewImage(input, previewId) {
 
 /**
  * Membuka modal edit user dengan data yang sudah terisi.
- * @param {object} user - Objek user yang akan diedit.
- * @param {string} imagePath - URL gambar user.
  */
 function openEditModal(user, imagePath) {
     const editForm = document.getElementById('editForm');
+    const editImagePreview = document.getElementById('edit-image-preview');
+    const editImageInput = document.getElementById('editImage');
+
     document.getElementById('editUsername').value = user.username;
     document.getElementById('editNama').value = user.nama;
     document.getElementById('editEmail').value = user.email;
@@ -249,13 +275,17 @@ function openEditModal(user, imagePath) {
     document.getElementById('editAlamat').value = user.alamat || '';
     document.getElementById('editJabatan').value = user.jabatan || '';
     document.getElementById('editRole').value = user.role;
-    document.getElementById('edit-image-preview').src = imagePath;
-    document.getElementById('current-image-path').value = user.image || '';
     
-    // Atur action form ke route update
+    editImagePreview.src = imagePath;
+    editImagePreview.classList.remove('hidden');
+
+    if (editImageInput) {
+        editImageInput.value = '';
+    }
+
+    document.getElementById('current-image-path').value = user.image || '';
     editForm.action = `/users/${user.id}`;
     
-    // Tangkap data lama dari session jika ada error validasi
     const hasErrorsEdit = document.getElementById('editModal').dataset.hasErrorsEdit;
     if (hasErrorsEdit && hasErrorsEdit === user.id.toString()) {
         const oldData = JSON.parse(document.getElementById('editModal').dataset.userData);
@@ -273,8 +303,6 @@ function openEditModal(user, imagePath) {
 
 /**
  * Membuka modal hapus user.
- * @param {string} url - URL endpoint untuk menghapus user.
- * @param {string} namaUser - Nama user yang akan dihapus.
  */
 function openDeleteModal(url, namaUser) {
     const deleteForm = document.getElementById('deleteForm');
@@ -286,7 +314,6 @@ function openDeleteModal(url, namaUser) {
 
 /**
  * Membuka modal detail user dan memuat data melalui AJAX.
- * @param {string} url - URL endpoint untuk mengambil data user.
  */
 function openDetailModal(url) {
     const detailModal = document.getElementById('detailModal');
@@ -301,7 +328,6 @@ function openDetailModal(url) {
     const detailCreated = document.getElementById('detail-created');
     const detailUpdated = document.getElementById('detail-updated');
 
-    // Tampilkan modal dan spinner/loading
     detailModal.classList.remove('hidden');
     detailModal.classList.add('flex');
     detailUsername.textContent = 'Memuat...';
@@ -316,7 +342,6 @@ function openDetailModal(url) {
     detailUpdated.textContent = '';
     document.body.style.overflow = 'hidden';
 
-    // Ambil data dari API
     fetch(url, {
         method: 'GET',
         headers: {
@@ -331,7 +356,6 @@ function openDetailModal(url) {
         return response.json();
     })
     .then(data => {
-        // Isi data ke dalam elemen-elemen modal
         detailUsername.textContent = data.username;
         detailNama.textContent = data.nama;
         detailEmail.textContent = data.email;
@@ -342,8 +366,6 @@ function openDetailModal(url) {
         detailImage.src = data.image;
         detailCreated.textContent = data.dibuat_pada;
         detailUpdated.textContent = data.diperbarui_pada;
-        
-        // Panggil Feather Icons untuk me-render ulang ikon
         feather.replace();
     })
     .catch(error => {
@@ -371,11 +393,9 @@ function initializeUserFiltersAndPagination() {
         loadTableContent(url.toString());
     }, 300);
 
-    // Event listeners
     searchInput.addEventListener('input', performFilter);
     roleFilter.addEventListener('change', performFilter);
 
-    // Menggunakan event delegation untuk paginasi
     document.addEventListener('click', (event) => {
         const pageLink = event.target.closest('.pagination-link');
         if (pageLink) {
@@ -386,7 +406,6 @@ function initializeUserFiltersAndPagination() {
         }
     });
 
-    // Jalankan filter saat halaman dimuat jika ada input yang terisi
     if (searchInput.value || roleFilter.value) {
         performFilter();
     }
@@ -397,7 +416,25 @@ document.addEventListener('DOMContentLoaded', () => {
     feather.replace();
     initializeUserFiltersAndPagination();
     
-    // Panggil modal jika ada error validasi saat submit form
+    // Cek dan tampilkan toast notification
+    const successMessage = document.getElementById('success-message');
+    if (successMessage) {
+        const message = successMessage.textContent.trim();
+        if (message) {
+            showToast(message, 'success');
+            successMessage.remove();
+        }
+    }
+
+    const errorMessage = document.getElementById('error-message');
+    if (errorMessage) {
+        const message = errorMessage.textContent.trim();
+        if (message) {
+            showToast(message, 'error');
+            errorMessage.remove();
+        }
+    }
+    
     const addModal = document.getElementById('addModal');
     const editModal = document.getElementById('editModal');
     
@@ -408,10 +445,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editModal && editModal.dataset.hasErrorsEdit !== '') {
         const userIdEdit = editModal.dataset.hasErrorsEdit;
         const userData = JSON.parse(editModal.dataset.userData);
-        // Panggil openEditModal dengan data yang ada di old()
-        const imagePath = userData.image ? `/storage/${userData.image}` : 'https://via.placeholder.com/100';
+        const imagePath = userData.current_image_path ? `/storage/${userData.current_image_path}` : 'https://via.placeholder.com/100';
         
-        // Buat objek user sementara untuk mengisi modal
         const userTemp = {
             id: userIdEdit,
             username: userData.username,
@@ -436,6 +471,7 @@ document.addEventListener('keydown', function(event) {
                 closeModal(modal.id);
             }
         });
+        closeToast();
     }
 });
 

@@ -35,7 +35,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Semua rute di dalam grup ini akan memeriksa apakah pengguna sudah login
 Route::middleware('auth')->group(function () {
     
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
     
     // Admin Only Routes
     Route::middleware('check.role:admin')->group(function () {
@@ -50,6 +50,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.cetak-pdf');
     Route::get('/transaksi/produk/filter', [TransaksiController::class, 'getFilteredProduk'])->name('transaksi.produk.filter');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/dashboard/pendapatan', [DashboardController::class, 'getPendapatan'])->name('dashboard.pendapatan');
+Route::get('/dashboard/produk-terlaris', [DashboardController::class, 'getProdukTerlaris'])->name('dashboard.produk-terlaris');
+Route::get('/dashboard/metode-pembayaran', [DashboardController::class, 'getMetodePembayaran'])->name('dashboard.metode-pembayaran');
+
 
     Route::resource('transaksi', TransaksiController::class);
     Route::resource('transaksi', TransaksiController::class)->only(['index', 'show', 'create', 'store']);

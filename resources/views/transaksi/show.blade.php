@@ -8,7 +8,12 @@
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Detail Transaksi</h1>
-                <p class="text-sm text-gray-500 mt-1">ID Transaksi: #{{ str_pad($transaksi->id, 6, '0', STR_PAD_LEFT) }}</p>
+                <p class="text-sm text-gray-500 mt-1">
+                    ID Transaksi: #{{ str_pad($transaksi->id, 6, '0', STR_PAD_LEFT) }} | 
+                    <span class="font-medium">
+                        {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->locale('id')->isoFormat('H:mm:ss') }} WIB 
+                    </span>
+                </p>
             </div>
             <div class="flex gap-2">
                 <a href="{{ route('transaksi.print', $transaksi->id) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
@@ -54,6 +59,12 @@
                                 <p class="mt-1 text-sm text-gray-900">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}</p>
                             </div>
                             
+                            {{-- BARU: Jam Transaksi --}}
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Waktu</p>
+                                <p class="mt-1 text-sm text-gray-900">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->locale('id')->isoFormat('HH:mm:ss') }} WIB</p>
+                            </div>
+
                             <div>
                                 <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Metode Pembayaran</p>
                                 <div class="mt-1 flex items-center">

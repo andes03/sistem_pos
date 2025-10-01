@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Balcos Compound</title>
+    <title>Login - Sebelas Coofee</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
@@ -54,8 +54,8 @@
                 
                 <!-- Overlay Content -->
                 <div class="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center text-white z-10 p-4">
-                    <h1 class="text-4xl font-extrabold tracking-tight drop-shadow-lg">Balcos Compound</h1>
-                    <p class="mt-2 text-lg font-light text-blue-100 drop-shadow-md">Admin Login</p>
+                    <h1 class="text-4xl font-extrabold tracking-tight drop-shadow-lg">Sebelas Coofee</h1>
+                    <p class="mt-2 text-lg font-light text-blue-100 drop-shadow-md">Admin & Pegawai Login</p>
                 </div>
             </div>
 

@@ -18,7 +18,7 @@ class WelcomeController extends Controller
     {
         $kategori = Kategori::all();
         $memberships = Membership::all();
-        $produk = Produk::paginate(10);
+        $produk = Produk::paginate(100);
 
         return view('welcome', compact('produk', 'kategori', 'memberships'));
     }
@@ -39,7 +39,7 @@ class WelcomeController extends Controller
             $query->where('kategori_id', $request->input('kategori'));
         }
         
-        $produk = $query->paginate(10)->withQueryString();
+        $produk = $query->paginate(100)->withQueryString();
 
         // Kebutuhan data lain untuk view welcome
         $kategori = Kategori::all();

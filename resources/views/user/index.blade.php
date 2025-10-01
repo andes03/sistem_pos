@@ -4,16 +4,14 @@
 <div class="container mx-auto py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Manajemen Pengguna</h1>
 
+     {{-- Pesan sukses - disembunyikan dan akan ditampilkan sebagai toast --}}
     @if(session('success'))
-    <div class="mb-4 px-4 py-3 bg-green-200 text-green-800 rounded shadow">
-        {{ session('success') }}
-    </div>
+        <div id="success-message" class="hidden">{{ session('success') }}</div>
     @endif
 
+    {{-- Pesan error - disembunyikan dan akan ditampilkan sebagai toast --}}
     @if(session('error'))
-    <div class="mb-4 px-4 py-3 bg-red-200 text-red-800 rounded shadow">
-        {{ session('error') }}
-    </div>
+        <div id="error-message" class="hidden">{{ session('error') }}</div>
     @endif
 
     <input type="hidden" id="base-url" value="{{ route('users.index') }}">
@@ -66,8 +64,6 @@
 {{-- ============== MODALS SECTION =================== --}}
 {{-- ================================================= --}}
 
-{{-- Modal Tambah User --}}
-{{-- Modal Tambah User --}}
 {{-- Modal Tambah User --}}
 <div id="addModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-50 z-50"
      data-has-errors="{{ $errors->any() && session('_form_type') === 'add' ? 'true' : 'false' }}">
@@ -123,7 +119,11 @@
                                 <i data-feather="eye" id="togglePasswordIcon" class="w-5 h-5"></i>
                             </button>
                         </div>
-                        @error('password') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                        @error('password')
+                            @unless(str_contains($message, 'Konfirmasi') || str_contains($message, 'konfirmasi') || str_contains($message, 'confirmation'))
+                                <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
+                            @endunless
+                        @enderror
                     </div>
 
                     <div class="mb-4">
@@ -131,13 +131,18 @@
                         <div class="relative">
                             <input type="password" name="password_confirmation" id="password_confirmation" required
                                    value="{{ old('_form_type') === 'add' ? old('password_confirmation') : '' }}"
-                                   class="w-full px-3 py-2 pr-10 border rounded-md focus:ring-2 focus:ring-blue-400"
+                                   class="w-full px-3 py-2 pr-10 border rounded-md focus:ring-2 focus:ring-blue-400 @error('password') border-red-500 @enderror"
                                    placeholder="Konfirmasi password">
                             <button type="button" onclick="togglePassword('password_confirmation', 'togglePasswordConfirmationIcon')" 
                                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                                 <i data-feather="eye" id="togglePasswordConfirmationIcon" class="w-5 h-5"></i>
                             </button>
                         </div>
+                        @error('password')
+                            @if(str_contains($message, 'Konfirmasi') || str_contains($message, 'konfirmasi') || str_contains($message, 'confirmation'))
+                                <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
+                            @endif
+                        @enderror
                     </div>
 
                     <div class="mb-4">
@@ -154,8 +159,8 @@
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Alamat *</label>
                         <textarea name="alamat" rows="3" required
-                                    class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('alamat') border-red-500 @enderror"
-                                    placeholder="Masukkan alamat lengkap">{{ old('alamat') }}</textarea>
+                                         class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('alamat') border-red-500 @enderror"
+                                         placeholder="Masukkan alamat lengkap">{{ old('alamat') }}</textarea>
                         @error('alamat') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
@@ -178,33 +183,27 @@
                     </div>
 
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Foto Profil</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Foto Profil *</label>
                         <div class="mb-3">
                             <img id="image-preview" src="https://via.placeholder.com/100" alt="Preview" 
                                  class="w-24 h-24 object-cover rounded border hidden">
                         </div>
-                        <input type="file" name="image" id="imageInput" accept="image/*"
+                        <input type="file" name="image" id="imageInput" accept="image/*" required
                                onchange="previewImage(this, 'image-preview')"
                                class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('image') border-red-500 @enderror">
+                        <div id="image-info">
+                            <p class="text-xs text-gray-500 mt-1">Format yang didukung: JPEG, PNG, JPG, GIF, SVG. Maksimal 2MB.</p>
+                        </div>
                         @error('image') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
             </div> {{-- Akhir dari grid --}}
 
-            <div class="flex justify-between items-center gap-3 mt-6">
-                {{-- Tombol Reset di sebelah kiri --}}
-                <button type="button" onclick="resetForm()" 
-                        class="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors flex items-center gap-2">
-                    <i data-feather="rotate-ccw" class="w-4 h-4"></i> Reset Form
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-2">
+                    <i data-feather="plus" class="w-4 h-4"></i> Simpan
                 </button>
-                
-                {{-- Tombol Batal dan Simpan di sebelah kanan --}}
-                <div class="flex gap-3">
-                    <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-2">
-                        <i data-feather="plus" class="w-4 h-4"></i> Simpan
-                    </button>
-                </div>
             </div>
         </form>
     </div>
@@ -255,7 +254,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Password (minimal 8 karkter)<small class="text-gray-500">(kosongkan jika tidak diubah)</small></label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password (minimal 8 karakter) <small class="text-gray-500">(kosongkan jika tidak diubah)</small></label>
                         <div class="relative">
                             <input type="password" name="password" id="editPassword"
                                    value="{{ old('_form_type') === 'edit' ? old('password') : '' }}"
@@ -266,7 +265,11 @@
                                 <i data-feather="eye" id="toggleEditPasswordIcon" class="w-5 h-5"></i>
                             </button>
                         </div>
-                        @error('password') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                        @error('password')
+                            @unless(str_contains($message, 'Konfirmasi') || str_contains($message, 'konfirmasi') || str_contains($message, 'confirmation'))
+                                <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
+                            @endunless
+                        @enderror
                     </div>
 
                     <div class="mb-4">
@@ -274,13 +277,18 @@
                         <div class="relative">
                             <input type="password" name="password_confirmation" id="editPasswordConfirmation"
                                    value="{{ old('_form_type') === 'edit' ? old('password_confirmation') : '' }}"
-                                   class="w-full px-3 py-2 pr-10 border rounded-md focus:ring-2 focus:ring-blue-400"
+                                   class="w-full px-3 py-2 pr-10 border rounded-md focus:ring-2 focus:ring-blue-400 @error('password') border-red-500 @enderror"
                                    placeholder="Konfirmasi password baru">
                             <button type="button" onclick="togglePassword('editPasswordConfirmation', 'toggleEditPasswordConfirmationIcon')" 
                                     class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                                 <i data-feather="eye" id="toggleEditPasswordConfirmationIcon" class="w-5 h-5"></i>
                             </button>
                         </div>
+                        @error('password')
+                            @if(str_contains($message, 'Konfirmasi') || str_contains($message, 'konfirmasi') || str_contains($message, 'confirmation'))
+                                <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span>
+                            @endif
+                        @enderror
                     </div>
 
                     <div class="mb-4">
@@ -297,8 +305,8 @@
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Alamat *</label>
                         <textarea name="alamat" id="editAlamat" rows="3" required
-                                    class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('alamat') border-red-500 @enderror"
-                                    placeholder="Masukkan alamat lengkap">{{ old('_form_type') === 'edit' ? old('alamat') : '' }}</textarea>
+                                         class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('alamat') border-red-500 @enderror"
+                                         placeholder="Masukkan alamat lengkap">{{ old('_form_type') === 'edit' ? old('alamat') : '' }}</textarea>
                         @error('alamat') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
@@ -314,12 +322,12 @@
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Role *</label>
                         <select name="role" id="editRole" required
-                                 class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('role') border-red-500 @enderror">
+                                     class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('role') border-red-500 @enderror">
                             <option value="" disabled>Pilih Role</option>
                             <option value="user"
-                                    {{ (old('_form_type') === 'edit' && old('role') == 'user') ? 'selected' : '' }}>User</option>
+                                         {{ (old('_form_type') === 'edit' && old('role') == 'user') ? 'selected' : '' }}>User</option>
                             <option value="admin"
-                                    {{ (old('_form_type') === 'edit' && old('role') == 'admin') ? 'selected' : '' }}>Admin</option>
+                                         {{ (old('_form_type') === 'edit' && old('role') == 'admin') ? 'selected' : '' }}>Admin</option>
                         </select>
                         @error('role') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                     </div>
@@ -331,6 +339,9 @@
                                onchange="previewImage(this, 'edit-image-preview')"
                                class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400 @error('image') border-red-500 @enderror">
                         <input type="hidden" name="current_image_path" id="current-image-path">
+                        <div id="editImageInput-info">
+                            <p class="text-xs text-gray-500 mt-1">Format yang didukung: JPEG, PNG, JPG, GIF, SVG. Maksimal 2MB.</p>
+                        </div>
                         @error('image') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
@@ -390,14 +401,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-1 flex justify-center">
                 <div class="relative w-full max-w-xs">
-                    <!-- Gambar user -->
                     <img id="detail-image" src="" alt="Foto User" 
                          class="w-full h-auto object-cover rounded-lg shadow-md"
                          style="display: none;"
                          onload="this.style.display='block'; this.nextElementSibling.style.display='none';"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     
-                    <!-- Avatar dengan ikon user sebagai fallback -->
                     <div id="detail-avatar" 
                          class="w-full aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md flex items-center justify-center text-white"
                          style="display: flex;">
@@ -449,8 +458,6 @@
         </div>
     </div>
 </div>
-
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.29.0/dist/feather.min.js"></script>
 <script src="{{ asset('js/user.js') }}"></script>

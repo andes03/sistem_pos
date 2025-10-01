@@ -27,7 +27,7 @@
     .product-card .image-container {
         position: relative;
         width: 100%;
-        padding-top: 75%; /* Aspect ratio 4:3 lebih compact */
+        padding-top: 75%;
         background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     }
     .product-card img, .image-loading {
@@ -88,17 +88,16 @@
         border-bottom: none;
     }
     .payment-option:has(input:checked) {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
+        background-color: #16a34a;
+        border-color: #16a34a;
     }
     .payment-option:has(input:checked) .text-gray-700 {
         color: white !important;
     }
     .payment-option:has(input:checked) .text-gray-500 {
-        color: #e5e7eb !important;
+        color: #dcfce7 !important;
     }
     
-    /* Style untuk kategori filter buttons */
     .category-option {
         transition: all 0.2s ease;
         border: 2px solid #e5e7eb;
@@ -174,7 +173,7 @@
                                 </div>
                                 <button type="button" 
                                         id="clearSearch"
-                                        class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 hidden">
+                                        class="absolute inset-y-0 right-0 pr-3 items-center text-gray-400 hover:text-gray-600 hidden">
                                     <i data-feather="x" class="w-4 h-4"></i>
                                 </button>
                             </div>
@@ -260,19 +259,19 @@
                         <div class="mb-3">
                             <label class="block text-xs font-medium text-gray-700 mb-2">Metode Pembayaran</label>
                             <div class="flex space-x-2">
-                                <label class="flex-1 text-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 transition-colors duration-200 payment-option">
+                                <label class="flex-1 text-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-green-300 transition-colors duration-200 payment-option">
                                     <input type="radio" name="metode_pembayaran" value="tunai" class="hidden" checked required>
                                     <div class="text-xs font-medium text-gray-700">Tunai</div>
                                     <div class="text-xs text-gray-500 mt-0.5">Cash</div>
                                 </label>
                                 
-                                <label class="flex-1 text-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 transition-colors duration-200 payment-option">
+                                <label class="flex-1 text-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-green-300 transition-colors duration-200 payment-option">
                                     <input type="radio" name="metode_pembayaran" value="transfer" class="hidden" required>
                                     <div class="text-xs font-medium text-gray-700">Transfer</div>
                                     <div class="text-xs text-gray-500 mt-0.5">Bank</div>
                                 </label>
                                 
-                                <label class="flex-1 text-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 transition-colors duration-200 payment-option">
+                                <label class="flex-1 text-center p-2 border border-gray-200 rounded-lg cursor-pointer hover:border-green-300 transition-colors duration-200 payment-option">
                                     <input type="radio" name="metode_pembayaran" value="ewallet" class="hidden" required>
                                     <div class="text-xs font-medium text-gray-700">E-Wallet</div>
                                     <div class="text-xs text-gray-500 mt-0.5">QRIS</div>
@@ -286,7 +285,7 @@
                                     <span class="font-medium">Subtotal:</span>
                                     <span id="subtotalDisplay">Rp 0</span>
                                 </div>
-                                <div id="diskonRow" class="flex justify-between text-green-600 hidden text-xs">
+                                <div id="diskonRow" class="justify-between text-green-600 hidden text-xs">
                                     <span class="font-medium">Diskon (<span id="diskonPersen">0</span>%):</span>
                                     <span id="diskonDisplay">- Rp 0</span>
                                 </div>
@@ -312,7 +311,9 @@
 </div>
 
 <script>
-    let produkData = @json($produk);
+    // PENTING: Pisahkan data produk untuk filter dan keranjang
+    let produkData = @json($produk);           // Data produk yang ter-filter (untuk display)
+    let allProdukData = @json($produk);        // Semua data produk (untuk keranjang)
     let pelangganData = @json($pelanggan);
     let cart = {};
     let currentMembership = null;
@@ -332,7 +333,8 @@
 
         for (const id in cart) {
             const item = cart[id];
-            const produk = produkData.find(p => p.id == id);
+            // PENTING: Gunakan allProdukData, bukan produkData
+            const produk = allProdukData.find(p => p.id == id);
             if (produk) {
                 const itemSubtotal = produk.harga * item.jumlah;
                 subtotal += itemSubtotal;
@@ -358,16 +360,19 @@
                 diskon = (diskonPersen / 100) * subtotal;
                 total = subtotal - diskon;
                 diskonRow.classList.remove('hidden');
+                diskonRow.classList.add('flex');
                 document.getElementById('diskonPersen').textContent = diskonPersen;
                 document.getElementById('diskonDisplay').textContent = '- ' + formatRupiah(diskon);
                 membershipStatus.innerHTML = `<span class="text-green-600"><i data-feather="check-circle" class="w-4 h-4 inline mr-1"></i> Diskon ${diskonPersen}% berlaku! Hemat ${formatRupiah(diskon)}</span>`;
             } else {
                 diskonRow.classList.add('hidden');
+                diskonRow.classList.remove('flex');
                 membershipStatus.innerHTML = `<span class="text-blue-600"><i data-feather="info" class="w-4 h-4 inline mr-1"></i> Membership ini tidak memiliki diskon.</span>`;
             }
             feather.replace();
         } else {
             diskonRow.classList.add('hidden');
+            diskonRow.classList.remove('flex');
             membershipStatus.innerHTML = '';
         }
 
@@ -384,7 +389,8 @@
         let hasItems = false;
         for (const id in cart) {
             const item = cart[id];
-            const produk = produkData.find(p => p.id == id);
+            // PENTING: Gunakan allProdukData, bukan produkData
+            const produk = allProdukData.find(p => p.id == id);
             if (produk) {
                 hasItems = true;
                 const itemSubtotal = produk.harga * item.jumlah;
@@ -438,7 +444,8 @@
     }
 
     function updateCart(id, change) {
-        const produk = produkData.find(p => p.id == id);
+        // PENTING: Gunakan allProdukData, bukan produkData
+        const produk = allProdukData.find(p => p.id == id);
         if (!produk) return;
 
         if (cart[id]) {
@@ -455,7 +462,8 @@
     }
 
     function addToCart(id) {
-        const produk = produkData.find(p => p.id == id);
+        // PENTING: Gunakan allProdukData, bukan produkData
+        const produk = allProdukData.find(p => p.id == id);
         if (!produk) return;
         
         if (cart[id]) {
@@ -588,6 +596,7 @@
                 throw new Error('Gagal mengambil data produk.');
             }
             const data = await response.json();
+            // PENTING: Update hanya produkData (untuk display), bukan allProdukData
             produkData = data;
             renderProducts();
         } catch (error) {
@@ -635,8 +644,10 @@
             // Show/hide clear button
             if (searchTerm) {
                 clearButton.classList.remove('hidden');
+                clearButton.classList.add('flex');
             } else {
                 clearButton.classList.add('hidden');
+                clearButton.classList.remove('flex');
             }
             
             // Fetch products with search term
@@ -646,6 +657,7 @@
         clearButton.addEventListener('click', function() {
             searchInput.value = '';
             clearButton.classList.add('hidden');
+            clearButton.classList.remove('flex');
             fetchProducts();
             searchInput.focus();
         });

@@ -39,6 +39,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    // Store chart instances
+    let pendapatanChartInstance = null;
+    let produkTerlarisChartInstance = null;
+    let metodePembayaranChartInstance = null;
+    let membershipChartInstance = null;
+    let kategoriChartInstance = null;
+
     // Fungsi untuk membuat warna gradien pada bar
     function createGradient(ctx, chartArea, color) {
         const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
@@ -47,218 +54,233 @@ document.addEventListener('DOMContentLoaded', function () {
         return gradient;
     }
 
-    // Inisialisasi Chart Pendapatan
-    const ctxPendapatan = document.getElementById('pendapatanChart')?.getContext('2d');
-    if (ctxPendapatan) {
-        new Chart(ctxPendapatan, {
-            type: 'bar',
-            data: {
-                labels: pendapatanLabels,
-                datasets: [{
-                    label: 'Pendapatan',
-                    data: pendapatanValues,
-                    backgroundColor: function(context) {
-                        const chart = context.chart;
-                        const { chartArea } = chart;
-                        if (!chartArea) return;
-                        return createGradient(ctxPendapatan, chartArea, brandColors.primary.blue);
-                    },
-                    borderColor: brandColors.primary.blue,
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    hoverBackgroundColor: brandColors.hover.blue,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(200, 200, 200, 0.2)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
+    // Fungsi untuk inisialisasi Chart Pendapatan
+    function initPendapatanChart(labels, values) {
+        const ctxPendapatan = document.getElementById('pendapatanChart')?.getContext('2d');
+        if (ctxPendapatan) {
+            if (pendapatanChartInstance) {
+                pendapatanChartInstance.destroy();
             }
-        });
-    }
-
-    // Inisialisasi Chart Produk Terlaris
-    const ctxProdukTerlaris = document.getElementById('produkTerlarisChart')?.getContext('2d');
-    if (ctxProdukTerlaris) {
-        new Chart(ctxProdukTerlaris, {
-            type: 'bar',
-            data: {
-                labels: produkTerlarisLabels,
-                datasets: [{
-                    label: 'Jumlah Terjual',
-                    data: produkTerlarisValues,
-                    backgroundColor: function(context) {
-                        const chart = context.chart;
-                        const { chartArea } = chart;
-                        if (!chartArea) return;
-                        return createGradient(ctxProdukTerlaris, chartArea, brandColors.primary.green);
-                    },
-                    borderColor: brandColors.primary.green,
-                    borderWidth: 1,
-                    borderRadius: 5,
-                    hoverBackgroundColor: brandColors.hover.green,
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(200, 200, 200, 0.2)'
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Inisialisasi Chart Transaksi per Metode Pembayaran (Line Chart)
-    const ctxMetodePembayaran = document.getElementById('metodePembayaranChart')?.getContext('2d');
-    if (ctxMetodePembayaran) {
-        new Chart(ctxMetodePembayaran, {
-            type: 'line',
-            data: {
-                labels: metodePembayaranLabels,
-                datasets: [{
-                    label: 'Total Uang',
-                    data: metodePembayaranTotalUang,
-                    borderColor: brandColors.primary.blue,
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 3,
-                    pointBackgroundColor: brandColors.primary.blue,
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        left: 10,
-                        right: 10,
-                        top: 10,
-                        bottom: 5
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
+            pendapatanChartInstance = new Chart(ctxPendapatan, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Pendapatan',
+                        data: values,
+                        backgroundColor: function(context) {
+                            const chart = context.chart;
+                            const { chartArea } = chart;
+                            if (!chartArea) return;
+                            return createGradient(ctxPendapatan, chartArea, brandColors.primary.blue);
+                        },
+                        borderColor: brandColors.primary.blue,
                         borderWidth: 1,
-                        cornerRadius: 8,
-                        displayColors: false,
-                        titleFont: {
-                            size: 13,
-                            weight: 'bold'
+                        borderRadius: 5,
+                        hoverBackgroundColor: brandColors.hover.blue,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
+                            }
                         },
-                        bodyFont: {
-                            size: 12
-                        },
-                        padding: 12,
-                        callbacks: {
-                            title: function(context) {
-                                return context[0].label;
-                            },
-                            label: function(context) {
-                                const index = context.dataIndex;
-                                const jumlahTransaksi = metodePembayaranJumlahTransaksi[index];
-                                const totalUang = metodePembayaranTotalUang[index];
-                                
-                                return [
-                                    'Total: Rp ' + new Intl.NumberFormat('id-ID').format(totalUang),
-                                    'Transaksi: ' + jumlahTransaksi
-                                ];
+                        x: {
+                            grid: {
+                                display: false
                             }
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(200, 200, 200, 0.2)',
-                            drawBorder: false
+                }
+            });
+        }
+    }
+
+    // Fungsi untuk inisialisasi Chart Produk Terlaris
+    function initProdukTerlarisChart(labels, values) {
+        const ctxProdukTerlaris = document.getElementById('produkTerlarisChart')?.getContext('2d');
+        if (ctxProdukTerlaris) {
+            if (produkTerlarisChartInstance) {
+                produkTerlarisChartInstance.destroy();
+            }
+            produkTerlarisChartInstance = new Chart(ctxProdukTerlaris, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Terjual',
+                        data: values,
+                        backgroundColor: function(context) {
+                            const chart = context.chart;
+                            const { chartArea } = chart;
+                            if (!chartArea) return;
+                            return createGradient(ctxProdukTerlaris, chartArea, brandColors.primary.green);
                         },
-                        ticks: {
-                            font: {
-                                size: 10
-                            },
-                            maxTicksLimit: 5,
-                            padding: 5,
-                            callback: function(value) {
-                                return 'Rp ' + new Intl.NumberFormat('id-ID', {
-                                    notation: 'compact',
-                                    compactDisplay: 'short'
-                                }).format(value);
+                        borderColor: brandColors.primary.green,
+                        borderWidth: 1,
+                        borderRadius: 5,
+                        hoverBackgroundColor: brandColors.hover.green,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
                             }
                         }
+                    }
+                }
+            });
+        }
+    }
+
+    // Fungsi untuk inisialisasi Chart Transaksi per Metode Pembayaran
+    function initMetodePembayaranChart(labels, jumlahTransaksi, totalUang) {
+        const ctxMetodePembayaran = document.getElementById('metodePembayaranChart')?.getContext('2d');
+        if (ctxMetodePembayaran) {
+            if (metodePembayaranChartInstance) {
+                metodePembayaranChartInstance.destroy();
+            }
+            metodePembayaranChartInstance = new Chart(ctxMetodePembayaran, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Uang',
+                        data: totalUang,
+                        borderColor: brandColors.primary.blue,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: brandColors.primary.blue,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 5
+                        }
                     },
-                    x: {
-                        grid: {
-                            display: false,
-                            drawBorder: false
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
                         },
-                        ticks: {
-                            font: {
-                                size: 11,
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: false,
+                            titleFont: {
+                                size: 13,
                                 weight: 'bold'
                             },
-                            color: '#374151',
-                            maxRotation: 0,
-                            padding: 5
+                            bodyFont: {
+                                size: 12
+                            },
+                            padding: 12,
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const jmlTransaksi = jumlahTransaksi[index];
+                                    const ttlUang = totalUang[index];
+                                    
+                                    return [
+                                        'Total: Rp ' + new Intl.NumberFormat('id-ID').format(ttlUang),
+                                        'Transaksi: ' + jmlTransaksi
+                                    ];
+                                }
+                            }
                         }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.2)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                },
+                                maxTicksLimit: 5,
+                                padding: 5,
+                                callback: function(value) {
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID', {
+                                        notation: 'compact',
+                                        compactDisplay: 'short'
+                                    }).format(value);
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11,
+                                    weight: 'bold'
+                                },
+                                color: '#374151',
+                                maxRotation: 0,
+                                padding: 5
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverBackgroundColor: brandColors.hover.blue,
+                        }
+                    },
+                    onHover: function(event, elements) {
+                        event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                     }
-                },
-                elements: {
-                    point: {
-                        hoverBackgroundColor: brandColors.hover.blue,
-                    }
-                },
-                onHover: function(event, elements) {
-                    event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
                 }
-            }
-        });
+            });
+        }
     }
 
     // Inisialisasi Chart Membership
     const ctxMembership = document.getElementById('membershipChart')?.getContext('2d');
     if (ctxMembership) {
-        new Chart(ctxMembership, {
+        membershipChartInstance = new Chart(ctxMembership, {
             type: 'pie',
             data: {
                 labels: membershipLabels,
@@ -313,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Inisialisasi Chart Produk per Kategori
     const ctxKategori = document.getElementById('kategoriChart')?.getContext('2d');
     if (ctxKategori) {
-        new Chart(ctxKategori, {
+        kategoriChartInstance = new Chart(ctxKategori, {
             type: 'doughnut',
             data: {
                 labels: kategoriLabels,
@@ -353,33 +375,99 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Event Listener untuk filter tahun
+    // Initialize charts
+    initPendapatanChart(pendapatanLabels, pendapatanValues);
+    initProdukTerlarisChart(produkTerlarisLabels, produkTerlarisValues);
+    initMetodePembayaranChart(metodePembayaranLabels, metodePembayaranJumlahTransaksi, metodePembayaranTotalUang);
+
+    // Event Listener untuk filter tahun (AJAX)
     const tahunFilter = document.getElementById('tahunFilter');
     if (tahunFilter) {
         tahunFilter.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('tahun', this.value);
-            window.location.href = url.toString();
+            const tahun = this.value;
+            const chartTitle = document.querySelector('#pendapatanChart').closest('.bg-white').querySelector('h2');
+            chartTitle.textContent = `Pendapatan Bulanan Tahun ${tahun}`;
+            
+            // Show loading state
+            const canvas = document.getElementById('pendapatanChart');
+            canvas.style.opacity = '0.5';
+            
+            fetch(`/dashboard/pendapatan?tahun=${tahun}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                initPendapatanChart(data.labels, data.values);
+                canvas.style.opacity = '1';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                canvas.style.opacity = '1';
+            });
         });
     }
 
-    // Event Listener untuk filter bulan
+    // Event Listener untuk filter bulan (AJAX)
     const bulanFilter = document.getElementById('bulanFilter');
     if (bulanFilter) {
         bulanFilter.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('bulan', this.value);
-            window.location.href = url.toString();
+            const bulan = this.value;
+            const tahunFilter = document.getElementById('tahunFilter');
+            const tahun = tahunFilter ? tahunFilter.value : new Date().getFullYear();
+            
+            // Show loading state
+            const canvas = document.getElementById('metodePembayaranChart');
+            canvas.style.opacity = '0.5';
+            
+            fetch(`/dashboard/metode-pembayaran?bulan=${bulan}&tahun=${tahun}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                initMetodePembayaranChart(data.labels, data.jumlahTransaksi, data.totalUang);
+                canvas.style.opacity = '1';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                canvas.style.opacity = '1';
+            });
         });
     }
 
-    // Event Listener untuk filter kategori
+    // Event Listener untuk filter kategori (AJAX)
     const kategoriFilter = document.getElementById('kategoriFilter');
     if (kategoriFilter) {
         kategoriFilter.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('kategori_id', this.value);
-            window.location.href = url.toString();
+            const kategoriId = this.value;
+            
+            // Show loading state
+            const canvas = document.getElementById('produkTerlarisChart');
+            canvas.style.opacity = '0.5';
+            
+            fetch(`/dashboard/produk-terlaris?kategori_id=${kategoriId}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                initProdukTerlarisChart(data.labels, data.values);
+                canvas.style.opacity = '1';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                canvas.style.opacity = '1';
+            });
         });
     }
 });

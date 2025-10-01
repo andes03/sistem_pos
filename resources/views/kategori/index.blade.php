@@ -4,16 +4,14 @@
 <div class="container mx-auto py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Manajemen Kategori</h1>
 
+    {{-- Pesan sukses - disembunyikan dan akan ditampilkan sebagai toast --}}
     @if(session('success'))
-    <div class="mb-4 px-4 py-3 bg-green-200 text-green-800 rounded-lg shadow">
-        {{ session('success') }}
-    </div>
+        <div id="success-message" class="hidden">{{ session('success') }}</div>
     @endif
 
+    {{-- Pesan error - disembunyikan dan akan ditampilkan sebagai toast --}}
     @if(session('error'))
-    <div class="mb-4 px-4 py-3 bg-red-200 text-red-800 rounded-lg shadow">
-        {{ session('error') }}
-    </div>
+        <div id="error-message" class="hidden">{{ session('error') }}</div>
     @endif
 
     <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">

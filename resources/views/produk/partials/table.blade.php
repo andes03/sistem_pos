@@ -3,10 +3,10 @@
 
     {{-- Grid Layout untuk Produk --}}
     {{-- Menggunakan layout responsif: 2 kolom di layar kecil, hingga 5 kolom di layar besar --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-h-[600px] overflow-y-auto">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         @forelse($produk as $item)
             {{-- Kartu Produk --}}
-            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100 product-card">
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-200 product-card">
                 
                 {{-- Gambar Produk --}}
                 <div class="relative group aspect-square">
@@ -132,50 +132,12 @@
             feather.replace();
         }
         
-        // Fungsi untuk menampilkan produk per halaman (2 baris x 5 kolom = 10 produk)
-        const productsPerPage = 10;
-        const productCards = document.querySelectorAll('.product-card');
-        let currentPage = 1;
-        const totalPages = Math.ceil(productCards.length / productsPerPage);
-        
-        function showPage(page) {
-            productCards.forEach((card, index) => {
-                const start = (page - 1) * productsPerPage;
-                const end = start + productsPerPage;
-                
-                if (index >= start && index < end) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-        
-        // Tampilkan halaman pertama
-        showPage(currentPage);
-        
-        // Event listener untuk pagination jika diperlukan
-        document.querySelectorAll('.pagination-link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                const page = parseInt(this.getAttribute('data-page'));
-                if (page && page !== currentPage) {
-                    currentPage = page;
-                    showPage(currentPage);
-                }
-            });
-        });
-        
         // Cek gambar yang sudah dimuat sebelum script ini dijalankan
         document.querySelectorAll('.product-image').forEach(img => {
             if (img.complete && img.naturalHeight !== 0) {
                 handleImageLoad(img);
             }
         });
-    });
-
-    // Script untuk pagination links styling
-    document.querySelectorAll('.pagination a').forEach(link => {
-        link.classList.add('pagination-link');
     });
 </script>
 
@@ -208,24 +170,5 @@
     /* Loading animation */
     .image-loading {
         transition: opacity 0.3s ease;
-    }
-    
-    /* Custom scrollbar untuk overflow content */
-    .overflow-y-auto::-webkit-scrollbar {
-        width: 4px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 10px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
     }
 </style>

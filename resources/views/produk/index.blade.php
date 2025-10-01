@@ -4,10 +4,9 @@
 <div class="container mx-auto py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Manajemen Produk</h1>
 
+    {{-- Pesan sukses - disembunyikan dan akan ditampilkan sebagai toast --}}
     @if(session('success'))
-    <div class="mb-4 px-4 py-3 bg-green-200 text-green-800 rounded shadow">
-        {{ session('success') }}
-    </div>
+        <div id="success-message" class="hidden">{{ session('success') }}</div>
     @endif
 
     {{-- Container untuk Pencarian, Filter, dan Tombol Tambah --}}
@@ -135,7 +134,7 @@
                         @error('image') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
-            </div> {{-- Akhir dari grid --}}
+            </div>
 
             <div class="flex justify-end gap-3 mt-6">
                 <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors">Batal</button>
@@ -163,7 +162,6 @@
             <input type="hidden" name="_form_type" value="edit">
             <input type="hidden" name="produk_id_edit" id="produk_id_edit">
 
-            {{-- Grid untuk tata letak 2 kolom --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{-- Kolom Kiri --}}
                 <div>
@@ -219,7 +217,6 @@
                     
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Gambar</label>
-                        {{-- Preview gambar saat ini --}}
                         <div class="mb-2">
                             <p class="text-sm text-gray-600 mb-1">Gambar saat ini:</p>
                             <img id="image-preview" src="https://via.placeholder.com/100" alt="Preview" class="w-24 h-24 object-cover rounded border">
@@ -231,7 +228,7 @@
                         @error('image') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                     </div>
                 </div>
-            </div> {{-- Akhir dari grid --}}
+            </div>
 
             <div class="flex justify-end gap-3 mt-6">
                 <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Batal</button>
