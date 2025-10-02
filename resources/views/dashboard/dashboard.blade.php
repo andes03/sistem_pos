@@ -160,7 +160,6 @@
                 <canvas id="kategoriChart"></canvas>
             </div>
         </div>
-        
         {{-- Produk Stok Menipis --}}
         <div class="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6">
             <div class="flex justify-between items-center mb-4">
