@@ -50,7 +50,7 @@ class WelcomeController extends Controller
     }
 
     /**
-     * [AJAX] Periksa status membership dan kembalikan data JSON. (Tidak ada perubahan)
+     * [AJAX] Periksa status membership dan kembalikan data JSON.
      */
     public function ajaxCheckMembership(Request $request)
     {
@@ -62,8 +62,41 @@ class WelcomeController extends Controller
 
         if ($pelanggan) {
             $totalTransaksi = Transaksi::where('pelanggan_id', $pelanggan->id)->sum('total');
+            
+            // Cek apakah pelanggan belum punya membership
+            if (!$pelanggan->membership || $pelanggan->membership_id === null) {
+                // Ambil membership dengan minimal_transaksi terendah
+                $membershipTerendah = Membership::orderBy('minimal_transaksi', 'asc')->first();
+                
+                if ($membershipTerendah) {
+                    $selisihTransaksi = $membershipTerendah->minimal_transaksi - $totalTransaksi;
+                    $diskonFormatted = rtrim(rtrim(number_format($membershipTerendah->diskon, 2), '0'), '.');
+                    
+                    return response()->json([
+                        'success' => true,
+                        'has_membership' => false,
+                        'pelanggan' => [
+                            'id' => $pelanggan->id,
+                            'nama' => $pelanggan->nama,
+                            'email' => $pelanggan->email,
+                            'membership' => null,
+                        ],
+                        'totalTransaksi' => $totalTransaksi,
+                        'formattedTotal' => 'Rp' . number_format($totalTransaksi, 0, ',', '.'),
+                        'target_membership' => $membershipTerendah->nama,
+                        'target_diskon' => $diskonFormatted,
+                        'selisih_transaksi' => $selisihTransaksi,
+                        'formatted_selisih' => 'Rp' . number_format($selisihTransaksi, 0, ',', '.'),
+                        'minimal_transaksi' => $membershipTerendah->minimal_transaksi,
+                        'formatted_minimal' => 'Rp' . number_format($membershipTerendah->minimal_transaksi, 0, ',', '.'),
+                    ]);
+                }
+            }
+            
+            // Pelanggan sudah punya membership
             return response()->json([
                 'success' => true,
+                'has_membership' => true,
                 'pelanggan' => $pelanggan,
                 'totalTransaksi' => $totalTransaksi,
                 'formattedTotal' => 'Rp' . number_format($totalTransaksi, 0, ',', '.'),

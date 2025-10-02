@@ -16,7 +16,8 @@
             <tr>
                 {{-- Kelas whitespace-nowrap dihapus dari semua td agar konten bisa wrap --}}
                 <td class="px-6 py-4 text-sm text-gray-700">{{ ($transaksis->currentPage() - 1) * $transaksis->perPage() + $loop->iteration }}</td>
-                <td class="px-6 py-4 text-sm text-gray-700">{{ $transaksi->created_at->format('d/m/Y') }}</td>
+                {{-- PERBAIKAN: Menggunakan tanggal_transaksi --}}
+                <td class="px-6 py-4 text-sm text-gray-700">{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d/m/Y') }}</td>
                 <td class="px-6 py-4 text-sm text-gray-700">{{ $transaksi->pelanggan->nama ?? '-' }}</td>
                 <td class="px-6 py-4 text-sm text-gray-700">{{ $transaksi->pelanggan->membership->nama ?? '-' }}</td>
                 <td class="px-6 py-4 text-sm text-gray-700">

@@ -11,6 +11,10 @@ class Transaksi extends Model
 
     protected $table = 'transaksi';
 
+    protected $casts = [
+        'tanggal_transaksi' => 'date', // Ini akan mengkonversi string menjadi objek Carbon
+    ];
+
     protected $fillable = [
         'pelanggan_id',
         'user_id',

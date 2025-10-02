@@ -4,38 +4,56 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Balcos Compound - Coffee & Eatery</title>
+    <title>Sebelas Coffee - Coffee & Eatery</title>
     
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { font-family: 'Poppins', sans-serif; background-color: #f5f5f5; }
-        h1, h2 { font-family: 'Oswald', sans-serif; }
-        .text-brown-custom { color: #4b3621; }
-        .bg-brown-custom { background-color: #4b3621; }
-        .hover\:bg-brown-dark:hover { background-color: #3b2a1a; }
-        .product-image { width: 100%; height: 100%; object-fit: cover; }
-        .aspect-square { aspect-ratio: 1 / 1; }
-        .image-loading { transition: opacity 0.3s ease; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+            background-color: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
         
-        /* CSS UNTUK OVERLAY "MEMUAT..." SUDAH DIHAPUS */
-
-        .filter-btn {
-            transition: all 0.2s ease-in-out;
-            border: 1px solid #d1d5db;
+        .text-primary { color: #3b82f6; }
+        .text-secondary { color: #64748b; }
+        .bg-dark { background-color: #3b82f6; }
+        .bg-light { background-color: #f8fafc; }
+        .border-minimal { border-color: #e2e8f0; }
+        
+        h1, h2, h3 { 
+            font-weight: 600; 
+            letter-spacing: -0.02em;
         }
-        .filter-btn:hover {
-            border-color: #4b3621;
-            background-color: #f9fafb;
+        
+        nav {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid #e5e5e5;
         }
-        .filter-btn.filter-btn-active {
-            background-color: #4b3621;
-            color: #ffffff;
-            border-color: #4b3621;
-            font-weight: 600;
+        
+        .hero {
+            min-height: 60vh;
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="1" height="1" x="50" y="50" fill="white" opacity="0.1"/></svg>');
+            opacity: 0.1;
+        }
+        
         .header-bg-slideshow {
             position: absolute;
             inset: 0;
@@ -58,157 +76,318 @@
             43.3% { opacity: 0; }
             100% { opacity: 0; }
         }
-        @keyframes fadeInUp {
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 2px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+        
+        .btn-outline:hover {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(10%);
+            transition: all 0.4s ease;
+        }
+        
+        .card:hover .product-image {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+        
+        .aspect-square { 
+            aspect-ratio: 1 / 1; 
+            overflow: hidden;
+        }
+        
+        .image-loading { transition: opacity 0.3s ease; }
+        
+        .filter-btn {
+            padding: 0.5rem 1.25rem;
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 2px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .filter-btn-active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        input[type="text"],
+        input[type="email"] {
+            border: 1px solid #e5e5e5;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .membership-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 2rem;
+            border-radius: 4px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .membership-card:hover {
+            border-color: #3b82f6;
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animated-section {
-            animation: fadeInUp 0.8s ease-out forwards;
-            opacity: 0;
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .section {
+            padding: 4rem 0;
+        }
+        
+        @media (min-width: 768px) {
+            .section {
+                padding: 6rem 0;
+            }
+        }
+        
+        .stock-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.25rem 0.625rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #e5e5e5;
+            border-radius: 2px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .price {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #3b82f6;
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans antialiased">
+<body>
 
-<nav class="bg-white shadow-sm sticky top-0 z-40">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div class="text-2xl font-bold text-brown-custom tracking-widest uppercase">Sebelas Coffee</div>
-        <div>
-            <a href="{{ route('login') }}" class="px-4 py-2 bg-brown-custom text-white rounded-lg hover:bg-brown-dark transition-colors">Login</a>
-        </div>
+<nav class="sticky top-0 z-50">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center max-w-7xl">
+        <div class="text-xl font-semibold tracking-tight">Sistem Loyalitas Pelanggan Sebelas Coffee</div>
+        <a href="{{ route('login') }}" class="btn-primary">Login</a>
     </div>
 </nav>
 
-<header class="relative py-24 bg-gray-900 overflow-hidden">
+<header class="hero relative">
     <div class="header-bg-slideshow"></div>
     <div class="header-bg-slideshow"></div>
     <div class="header-bg-slideshow"></div>
     
-    <div class="absolute inset-0 bg-gray-900 opacity-70 z-2"></div>
+    <div class="absolute inset-0 bg-gray-900 opacity-70" style="z-index: 2;"></div>
     
-    <div class="container mx-auto px-4 relative z-10 text-center">
-        <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-4 tracking-wider">Sebelas Coffee</h1>
-        <p class="text-xl text-gray-200 mb-8">Coffee & Eatery</p>
-        <a href="#menu-section" class="inline-block bg-white text-brown-custom font-bold px-8 py-3 rounded-full uppercase tracking-wider hover:bg-gray-200 transition-all duration-300 transform hover:scale-105 shadow-lg">
-            Lihat Menu
-        </a>
+    <div class="container mx-auto px-6 py-24 relative max-w-7xl" style="z-index: 10;">
+        <div class="max-w-3xl">
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
+                Sebelas Coffee
+            </h1>
+            <p class="text-xl text-gray-300 mb-8 font-light">
+                Coffee & Eatery
+            </p>
+            <a href="#menu-section" class="btn-primary inline-block">
+                Lihat Menu
+            </a>
+        </div>
     </div>
 </header>
 
-<main class="py-12 md:py-20">
-    <div class="container mx-auto px-4">
-        
-        <section id="membership-checker" class="mb-16 animated-section">
-            <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-                <h2 class="text-2xl font-bold text-brown-custom mb-4 text-center">Cek Status Membership Anda</h2>
+<main>
+    <section class="section bg-light">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-3xl font-semibold mb-8 text-center">Cek Status Membership</h2>
                 <form id="membership-form" action="{{ route('check.membership.ajax') }}" method="POST">
                     @csrf
-                    <div class="flex">
-                        <input type="email" name="email" id="member-email" placeholder="Masukkan email terdaftar..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-brown-custom" required>
-                        <button type="submit" class="px-6 py-2 bg-brown-custom text-white rounded-r-lg hover:bg-brown-dark transition-colors font-semibold">Cek</button>
+                    <div class="flex gap-2">
+                        <input 
+                            type="email"
+                            name="email"
+                            id="member-email" 
+                            placeholder="Masukkan email terdaftar..." 
+                            class="flex-1"
+                            required
+                        >
+                        <button type="submit" class="btn-primary">Cek</button>
                     </div>
                 </form>
-                <div id="membership-result-container" class="mt-4"></div>
+                <div id="membership-result-container" class="mt-6"></div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="bg-gray-100 p-8 rounded-lg shadow-md mb-16 animated-section" style="animation-delay: 0.2s;">
-            <h2 class="text-3xl font-bold text-brown-custom mb-4 text-center">Gabung Member Sebelas Coffee</h2>
-            <p class="text-gray-600 text-center mb-8">Dapatkan diskon eksklusif dengan meningkatkan total transaksimu!</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section class="section">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-semibold mb-4">Gabung Member Sebelas Coffee</h2>
+                <p class="text-secondary max-w-2xl mx-auto">
+                    Dapatkan diskon eksklusif dengan meningkatkan total transaksimu
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                 @forelse($memberships as $index => $member)
-                    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="mb-4">
-                            @if($index == 0)
-                                <svg class="w-12 h-12 mx-auto text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                            @elseif($index == 1)
-                                <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            @else
-                                <svg class="w-12 h-12 mx-auto text-yellow-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            @endif
+                    <div class="membership-card">
+                        <div class="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);">
+                            <span class="text-white text-xl">{{ $index + 1 }}</span>
                         </div>
-                        <p class="text-xl font-semibold text-brown-custom mb-2">
-                             {{ $member->nama }} Member
-                        </p>
-                        <p class="text-2xl font-bold text-green-600 mb-3">
-                             Diskon {{ rtrim(rtrim(number_format($member->diskon, 2), '0'), '.') }}%
-                        </p>
-                        <p class="text-sm text-gray-500">
-                            Dicapai dengan total transaksi <strong>Rp{{ number_format($member->minimal_transaksi, 0, ',', '.') }}</strong>.
-                        </p>
+                        <h3 class="text-xl font-semibold mb-2">{{ $member->nama }}</h3>
+                        <p class="text-3xl font-bold mb-4">{{ rtrim(rtrim(number_format($member->diskon, 2), '0'), '.') }}%</p>
+                        <p class="text-sm text-secondary">Min. transaksi Rp{{ number_format($member->minimal_transaksi, 0, ',', '.') }}</p>
                     </div>
                 @empty
-                    <div class="col-span-full text-center text-gray-500">Info membership belum tersedia.</div>
+                    <div class="col-span-full text-center text-secondary">Info membership belum tersedia</div>
                 @endforelse
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="menu-section" class="animated-section" style="animation-delay: 0.4s;">
-            <h2 class="text-3xl font-bold text-brown-custom mb-8 text-center">Menu Kami</h2>
+    <section id="menu-section" class="section bg-light">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <h2 class="text-3xl md:text-4xl font-semibold mb-12 text-center">Menu Kami</h2>
             
-            <div id="product-filters" class="mb-8 p-4 bg-white rounded-lg shadow-md sticky top-[70px] z-30">
-                <div class="relative mb-4">
-                    <input type="text" name="search" id="search" placeholder="Cari nama kopi, makanan..." class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brown-custom">
-                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                         <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
-                     </div>
+            <div id="product-filters" class="mb-12 sticky top-20 z-40 bg-white border border-minimal rounded-md p-4">
+                <div class="mb-4 relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                    </div>
+                    <input 
+                        type="text"
+                        name="search"
+                        id="search" 
+                        placeholder="Cari nama kopi, makanan..." 
+                        style="padding-left: 2.75rem;"
+                        class="w-full"
+                    >
                 </div>
-
+                
                 <div id="kategori-filter-container" class="flex flex-wrap gap-2 justify-center">
-                    <button class="filter-btn filter-btn-active px-4 py-1.5 rounded-full text-sm" data-kategori="all">
+                    <button class="filter-btn filter-btn-active" data-kategori="all">
                         Semua Kategori
                     </button>
                     @foreach($kategori as $cat)
-                        <button class="filter-btn px-4 py-1.5 rounded-full text-sm" data-kategori="{{ $cat->id }}">
+                        <button class="filter-btn" data-kategori="{{ $cat->id }}">
                             {{ $cat->nama }}
                         </button>
                     @endforeach
                 </div>
             </div>
 
-            <div id="product-grid-container" class="relative">
-                <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div id="product-grid-container">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     @forelse($produk as $item)
-                        <div class="bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 product-card transform hover:-translate-y-1">
-                            <div class="relative group aspect-square">
+                        <div class="card product-card">
+                            <div class="aspect-square relative group">
                                 <div class="image-loading absolute inset-0 bg-gray-200 flex items-center justify-center">
                                     <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400"></div>
                                 </div>
-                                <img src="{{ $item->image ? asset('storage/' . $item->image) : 'https://via.placeholder.com/200x200?text=Balcos' }}"
-                                     alt="{{ $item->nama }}" 
-                                     class="product-image w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-0"
-                                     onload="handleImageLoad(this)"
-                                     onerror="handleImageError(this)">
-                                <div class="absolute top-2 right-2 z-10">
-                                    <span class="px-2 py-1 {{ $item->stok > 0 ? 'bg-green-500' : 'bg-red-500' }} text-white text-xs font-medium rounded-full shadow-sm">
-                                        Stok: {{ number_format($item->stok, 0, ',', '.') }}
-                                    </span>
+                                <img 
+                                    src="{{ $item->image ? asset('storage/' . $item->image) : 'https://via.placeholder.com/200x200?text=Sebelas' }}"
+                                    alt="{{ $item->nama }}" 
+                                    class="product-image opacity-0"
+                                    onload="handleImageLoad(this)"
+                                    onerror="handleImageError(this)"
+                                >
+                                <div class="stock-badge">
+                                    Stok: {{ number_format($item->stok, 0, ',', '.') }}
                                 </div>
                             </div>
                             <div class="p-4">
-                                <h3 class="text-base font-semibold text-gray-900 mb-1 truncate" title="{{ $item->nama }}">
+                                <h3 class="font-semibold mb-1 text-sm truncate" title="{{ $item->nama }}">
                                     {{ $item->nama }}
                                 </h3>
-                                <div class="mb-2">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-indigo-100 text-indigo-700">
-                                        {{ $item->kategori->nama ?? 'Tidak Ada' }}
-                                    </span>
-                                </div>
-                                <div class="mb-3">
-                                    <span class="text-lg font-bold text-brown-custom">
-                                        Rp{{ number_format($item->harga, 0, ',', '.') }}
-                                    </span>
-                                </div>
+                                <p class="text-xs text-secondary mb-3">{{ $item->kategori->nama ?? 'Tidak Ada' }}</p>
+                                <p class="price">Rp{{ number_format($item->harga, 0, ',', '.') }}</p>
                             </div>
                         </div>
                     @empty
-                        <div class="col-span-full flex flex-col items-center justify-center py-8 text-gray-500">
-                             <div class="bg-gray-100 rounded-full p-4 mb-3">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                             </div>
+                        <div class="col-span-full flex flex-col items-center justify-center py-8 text-secondary">
+                            <div class="bg-gray-100 rounded-full p-4 mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                            </div>
                             <h3 class="text-base font-medium text-gray-900 mb-1">Produk Tidak Ditemukan</h3>
-                            <p class="text-sm text-gray-500 text-center">
-                                Coba gunakan kata kunci atau filter yang berbeda.
+                            <p class="text-sm text-secondary text-center">
+                                Coba gunakan kata kunci atau filter yang berbeda
                             </p>
                         </div>
                     @endforelse
@@ -216,16 +395,21 @@
 
                 @if($produk->hasPages())
                     <div class="mt-8">
-                        <div class="px-4 py-3 bg-white border border-gray-200 rounded-lg">
+                        <div class="px-4 py-3 bg-white border border-minimal rounded-md">
                             {{ $produk->links('vendor.pagination.tailwind') }}
                         </div>
                     </div>
                 @endif
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
 </main>
 
+<footer class="bg-dark text-white py-12">
+    <div class="container mx-auto px-6 max-w-7xl text-center">
+        <p class="text-gray-400 text-sm">© 2025 Sebelas Coffee. All rights reserved.</p>
+    </div>
+</footer>
 
 <script>
     function handleImageLoad(img) {
@@ -236,6 +420,7 @@
         }
         img.style.opacity = '1';
     }
+    
     function handleImageError(img) {
         const loadingDiv = img.parentNode.querySelector('.image-loading');
         if (loadingDiv) {
@@ -252,21 +437,18 @@
         const kategoriFilterContainer = document.getElementById('kategori-filter-container');
         let debounceTimer;
         
-        // ==========================================================
-        // FUNGSI INI TELAH DIPERBARUI DENGAN SKELETON LOADER
-        // ==========================================================
         function fetchProducts(url) {
             const skeletonCardHTML = `
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 animate-pulse">
-                    <div class="aspect-square bg-gray-200"></div>
+                <div class="card animate-pulse">
+                    <div class="aspect-square skeleton"></div>
                     <div class="p-4">
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div class="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-                        <div class="h-5 bg-gray-200 rounded w-1/3"></div>
+                        <div class="h-4 skeleton rounded w-3/4 mb-2"></div>
+                        <div class="h-3 skeleton rounded w-1/2 mb-4"></div>
+                        <div class="h-5 skeleton rounded w-1/3"></div>
                     </div>
                 </div>
             `;
-            let skeletonGridHTML = '<div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">';
+            let skeletonGridHTML = '<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">';
             for (let i = 0; i < 10; i++) {
                 skeletonGridHTML += skeletonCardHTML;
             }
@@ -292,9 +474,6 @@
                 productGridContainer.innerHTML = '<div class="col-span-full text-center text-red-500">Gagal memuat produk. Silakan coba lagi.</div>';
             });
         }
-        // ==========================================================
-        // BATAS AKHIR FUNGSI YANG DIPERBARUI
-        // ==========================================================
 
         function applyFilters() {
             const searchValue = searchInput.value;
@@ -306,10 +485,12 @@
             window.history.pushState({}, '', url);
             fetchProducts(url.toString());
         }
+        
         searchInput.addEventListener('keyup', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(applyFilters, 500);
         });
+        
         kategoriFilterContainer.addEventListener('click', function(e) {
             if (e.target.classList.contains('filter-btn')) {
                 kategoriFilterContainer.querySelectorAll('.filter-btn').forEach(btn => {
@@ -319,6 +500,7 @@
                 applyFilters();
             }
         });
+        
         productGridContainer.addEventListener('click', function(e) {
             let target = e.target;
             while (target != null && target.tagName !== 'A') {
@@ -331,13 +513,15 @@
                 document.getElementById('menu-section').scrollIntoView({ behavior: 'smooth' });
             }
         });
+        
         membershipForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const button = this.querySelector('button[type="submit"]');
             const originalButtonText = button.textContent;
             button.textContent = 'Mengecek...';
             button.disabled = true;
-            resultContainer.innerHTML = `<div class="text-center text-gray-500">Memuat...</div>`;
+            resultContainer.innerHTML = `<div class="text-center text-secondary">Memuat...</div>`;
+            
             const formData = new FormData(this);
             fetch(this.action, {
                 method: 'POST',
@@ -347,38 +531,68 @@
                 },
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
                 let html = '';
                 if (data.success) {
                     const pelanggan = data.pelanggan;
-                    const membership = pelanggan.membership;
-                    const diskon = parseFloat(membership.diskon);
-                    html = `
-                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
-                        <p class="font-bold">Member Ditemukan!</p>
-                        <p><strong>Nama:</strong> ${pelanggan.nama}</p>
-                        <p><strong>Email:</strong> ${pelanggan.email}</p>
-                        <div class="mt-2 pt-2 border-t border-green-300">
-                            <p><strong>Level Member:</strong> ${membership.nama}</p>
-                            <p><strong>Diskon Anda:</strong> ${Number.isInteger(diskon) ? diskon : diskon.toFixed(2)}%</p>
-                            <p><strong>Total Transaksi Anda:</strong> ${data.formattedTotal}</p>
-                        </div>
-                    </div>`;
+                    
+                    if (data.has_membership && pelanggan.membership) {
+                        const membership = pelanggan.membership;
+                        const diskon = parseFloat(membership.diskon);
+                        html = `
+                        <div class="p-4 border border-minimal rounded-md bg-white">
+                            <p class="font-semibold mb-2">Member Ditemukan!</p>
+                            <p class="text-sm text-secondary mb-1"><strong>Nama:</strong> ${pelanggan.nama}</p>
+                            <p class="text-sm text-secondary mb-1"><strong>Email:</strong> ${pelanggan.email}</p>
+                            <div class="mt-2 pt-2 border-t border-minimal">
+                                <p class="text-sm text-secondary mb-1"><strong>Level Member:</strong> ${membership.nama}</p>
+                                <p class="text-sm text-secondary mb-1"><strong>Diskon Anda:</strong> ${Number.isInteger(diskon) ? diskon : diskon.toFixed(2)}%</p>
+                                <p class="text-sm text-secondary"><strong>Total Transaksi:</strong> ${data.formattedTotal}</p>
+                            </div>
+                        </div>`;
+                    } else {
+                        html = `
+                    
+<div class="p-4 border border-minimal rounded-md bg-white">
+    <p class="font-semibold mb-2">Member Ditemukan!</p>
+    <p class="text-sm text-secondary mb-1"><strong>Nama:</strong> ${pelanggan.nama}</p>
+    <p class="text-sm text-secondary mb-1"><strong>Email:</strong> ${pelanggan.email}</p>
+    <div class="mt-2 pt-2 border-t border-minimal">
+        <p class="text-sm text-secondary mb-1"><strong>Level Member:</strong> <span class="text-gray-500">Belum Ada</span></p>
+        <p class="text-sm text-secondary mb-1"><strong>Total Transaksi:</strong> ${data.formattedTotal}</p>
+    </div>
+    <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+        <p class="text-sm font-medium text-blue-900 mb-1">Target Membership</p>
+        <p class="text-sm text-blue-800">
+            Transaksi lagi <strong>${data.formatted_selisih}</strong> untuk mendapatkan membership <strong>${data.target_membership}</strong> (Diskon ${data.target_diskon}%)
+        </p>
+        <p class="text-xs text-blue-700 mt-1">
+            (Minimal transaksi: ${data.formatted_minimal})
+        </p>
+    </div>
+</div>`;
+                    }
                 } else {
                     html = `
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-                        <p class="font-bold">Tidak Ditemukan</p>
-                        <p>${data.message}</p>
+                    <div class="p-4 border border-gray-300 rounded-md bg-gray-50">
+                        <p class="font-semibold mb-2">Tidak Ditemukan</p>
+                        <p class="text-sm text-secondary">${data.message}</p>
                     </div>`;
                 }
                 resultContainer.innerHTML = html;
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Fetch error:', error);
                 resultContainer.innerHTML = `
-                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-                        <p class="font-bold">Terjadi Kesalahan</p><p>Gagal terhubung ke server.</p>
+                    <div class="p-4 border border-gray-300 rounded-md bg-gray-50">
+                        <p class="font-semibold mb-2">Terjadi Kesalahan</p>
+                        <p class="text-sm text-secondary">Gagal terhubung ke server. ${error.message}</p>
                     </div>`;
             })
             .finally(() => {
