@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Transaksi;
 use App\Models\Membership;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon; // Tambahkan use statement untuk Carbon
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth; // Penting: Untuk mengambil data user yang login
 
 class LaporanController extends Controller
 {
@@ -17,21 +18,15 @@ class LaporanController extends Controller
         $membership_id = $request->input('membership_id');
         $metode_pembayaran = $request->input('metode_pembayaran');
 
-        // Menggunakan Transaksi::query() di awal agar objek $query bisa di-clone untuk sum()
         $query = Transaksi::query()->with(['pelanggan', 'detailTransaksi.produk'])
-            // Mengurutkan berdasarkan tanggal_transaksi terbaru
             ->orderBy('tanggal_transaksi', 'desc');
 
-        // ==========================================================
-        // PERBAIKAN: Menggunakan 'tanggal_transaksi' dan whereDate()
-        // ==========================================================
         if ($from_date) {
             $query->whereDate('tanggal_transaksi', '>=', $from_date);
         }
         if ($to_date) {
             $query->whereDate('tanggal_transaksi', '<=', $to_date);
         }
-        // ==========================================================
 
         if ($membership_id) {
             $query->whereHas('pelanggan', function ($q) use ($membership_id) {
@@ -43,17 +38,14 @@ class LaporanController extends Controller
             $query->where('metode_pembayaran', $metode_pembayaran);
         }
         
-        // Clone query sebelum pagination untuk menghitung total
         $queryForTotal = clone $query;
         
         $transaksis = $query->paginate(8)->withQueryString();
         
-        // Menghitung total transaksi dari semua data yang difilter
         $totalTransaksi = $queryForTotal->sum('total');
 
         $memberships = Membership::orderBy('nama')->get();
 
-        // Daftar metode pembayaran
         $metodePembayaran = [
             'tunai' => 'Tunai',
             'transfer' => 'Transfer',
@@ -84,14 +76,9 @@ class LaporanController extends Controller
         $metode_pembayaran = $request->input('metode_pembayaran');
         
         $query = Transaksi::query()->with(['pelanggan', 'detailTransaksi.produk'])
-            // Mengurutkan berdasarkan tanggal_transaksi terbaru
             ->orderBy('tanggal_transaksi', 'desc');
 
-        // ==========================================================
-        // PERBAIKAN: Menggunakan 'tanggal_transaksi' dan whereDate()
-        // ==========================================================
         if ($from_date && $to_date) {
-            // whereDate() lebih bersih daripada whereBetween dengan string waktu
             $query->whereDate('tanggal_transaksi', '>=', $from_date)
                   ->whereDate('tanggal_transaksi', '<=', $to_date);
         } elseif ($from_date) {
@@ -99,7 +86,6 @@ class LaporanController extends Controller
         } elseif ($to_date) {
              $query->whereDate('tanggal_transaksi', '<=', $to_date);
         }
-        // ==========================================================
 
         if ($membership_id) {
             $query->whereHas('pelanggan', function ($q) use ($membership_id) {
@@ -115,7 +101,6 @@ class LaporanController extends Controller
         
         $membership_name = $membership_id ? Membership::find($membership_id)->nama : 'Semua Membership';
         
-        // Menentukan nama metode pembayaran untuk ditampilkan di PDF
         $metodePembayaranLabel = $metode_pembayaran ? 
             collect([
                 'tunai' => 'Tunai',
@@ -123,27 +108,27 @@ class LaporanController extends Controller
                 'ewallet' => 'E-Wallet'
             ])->get($metode_pembayaran) : 'Semua Metode';
         
-        // Menghitung total transaksi dari semua data yang difilter
         $totalTransaksi = $query->sum('total');
 
-        // Data tanggal (from_date dan to_date) yang diambil dari input
-        // akan digunakan di laporan PDF (tanggal di laporan)
+        // PENGAMBILAN NAMA USER SESUAI REFERENSI: Auth::user()->nama
+        $user_name = Auth::check() ? Auth::user()->nama : 'Sistem'; 
+        
         $pdf = Pdf::loadView('laporan.pdf_template', compact(
             'transaksis', 
             'from_date', 
             'to_date', 
             'membership_name', 
             'totalTransaksi',
-            'metodePembayaranLabel'
+            'metodePembayaranLabel',
+            'user_name' // Variabel diteruskan ke view
         ));
 
-        // Penamaan file PDF (tanggal di laporan pdf)
+        // Penamaan file PDF
         $filename = 'laporan-transaksi-';
         if ($from_date && $to_date) {
-            // Nama file mencantumkan tanggal filter dari input
             $filename .= $from_date . '_sd_' . $to_date;
         } else {
-            $filename .= Carbon::now()->format('Y-m-d'); // Menggunakan Carbon karena sudah di-import
+            $filename .= Carbon::now()->format('Y-m-d');
         }
         $filename .= ($membership_id ? '-(' . $membership_id . ')' : '');
         $filename .= ($metode_pembayaran ? '-' . $metode_pembayaran : '');

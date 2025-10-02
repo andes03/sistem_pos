@@ -52,6 +52,17 @@
                         </p>
                         <span class="text-lg font-bold text-gray-900">Rp {{ number_format($membership->minimal_transaksi, 0, ',', '.') }}</span>
                     </div>
+                    
+                    {{-- PENJELASAN BARU DITAMBAHKAN DI BAWAH INI --}}
+                    <div class="pt-2">
+                        <p class="text-xs text-gray-500 italic">
+                            Akumulasi transaksaksi pelanggan  harus mencapai 
+                            <span class="font-semibold text-gray-700">Rp {{ number_format($membership->minimal_transaksi, 0, ',', '.') }}</span> 
+                            untuk mencapai membership 
+                            <span class="font-semibold text-blue-600">{{ $membership->nama }}</span>.
+                        </p>
+                    </div>
+                    {{-- AKHIR PENJELASAN BARU --}}
 
                 </div>
             </div>

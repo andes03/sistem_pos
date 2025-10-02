@@ -681,7 +681,7 @@
             }
             
             pelangganList.forEach(pelanggan => {
-                const membershipName = pelanggan.membership?.nama || 'Tidak ada membership';
+                const membershipName = pelanggan.membership?.nama || 'Tidak ada Diskon';
                 const membershipDiskon = pelanggan.membership?.diskon || 0;
                 
                 const item = document.createElement('div');
