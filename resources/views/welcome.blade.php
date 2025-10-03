@@ -180,15 +180,17 @@
         
         .membership-card {
             background: white;
-            border: 1px solid #e5e5e5;
-            padding: 2rem;
-            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+            padding: 2.5rem 2rem;
+            border-radius: 8px;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
         }
-        
         .membership-card:hover {
-            border-color: #3b82f6;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.07);
         }
         
         .skeleton {
@@ -305,15 +307,20 @@
                 </p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div class="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-8">
                 @forelse($memberships as $index => $member)
                     <div class="membership-card">
-                        <div class="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);">
-                            <span class="text-white text-xl">{{ $index + 1 }}</span>
+                        <h3 class="text-lg font-semibold text-gray-800">{{ $member->nama }}</h3>
+                        
+                        <div class="my-6">
+                            <span class="text-5xl font-bold text-gray-900">{{ rtrim(rtrim(number_format($member->diskon, 2), '0'), '.') }}<span class="text-3xl text-gray-400">%</span></span>
+                            <p class="mt-1 text-sm text-secondary tracking-wide uppercase">Diskon</p>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">{{ $member->nama }}</h3>
-                        <p class="text-3xl font-bold mb-4">{{ rtrim(rtrim(number_format($member->diskon, 2), '0'), '.') }}%</p>
-                        <p class="text-sm text-secondary">Min. transaksi Rp{{ number_format($member->minimal_transaksi, 0, ',', '.') }}</p>
+                        
+                        <div class="flex-grow text-sm text-secondary">
+                            <p>Minimal akumulasi transaksi</p>
+                            <p class="text-base font-semibold text-gray-700 mt-1">Rp{{ number_format($member->minimal_transaksi, 0, ',', '.') }}</p>
+                        </div>
                     </div>
                 @empty
                     <div class="col-span-full text-center text-secondary">Info membership belum tersedia</div>
@@ -321,7 +328,6 @@
             </div>
         </div>
     </section>
-
     <section id="menu-section" class="section bg-light">
         <div class="container mx-auto px-6 max-w-7xl">
             <h2 class="text-3xl md:text-4xl font-semibold mb-12 text-center">Menu Kami</h2>
@@ -407,7 +413,7 @@
 
 <footer class="bg-dark text-white py-12">
     <div class="container mx-auto px-6 max-w-7xl text-center">
-        <p class="text-gray-400 text-sm">© 2025 Sebelas Coffee. All rights reserved.</p>
+        <p class="text-gray-100 text-sm">© 2025 Sebelas Coffee. All rights reserved.</p>
     </div>
 </footer>
 
@@ -558,7 +564,6 @@
                         </div>`;
                     } else {
                         html = `
-                    
 <div class="p-4 border border-minimal rounded-md bg-white">
     <p class="font-semibold mb-2">Member Ditemukan!</p>
     <p class="text-sm text-secondary mb-1"><strong>Nama:</strong> ${pelanggan.nama}</p>
